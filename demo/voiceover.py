@@ -6,8 +6,8 @@ Runs on your own machine with your own ElevenLabs key. Only Python's standard li
 and ffmpeg are needed (no pip install).
 
     export ELEVENLABS_API_KEY=...            # your key; never commit it
-    python3 voiceover.py                     # Norwegian: tenkemakker-pitch-nb.mp4 -> tenkemakker-pitch-nb-voice.mp4
-    python3 voiceover.py --lang en
+    python3 voiceover.py                     # English: tenkemakker-pitch-en.mp4 -> tenkemakker-pitch-en-voice.mp4
+    python3 voiceover.py --lang nb           # Norwegian
     python3 voiceover.py --list-voices       # pick a voice, then --voice <voice_id>
     python3 voiceover.py --no-music          # voice only
     python3 voiceover.py --fake              # test the mixing without calling ElevenLabs (beeps instead of speech)
@@ -71,7 +71,8 @@ def api(path, body=None, key=None, method="POST", accept="audio/mpeg"):
             return r.read()
     except urllib.error.HTTPError as e:
         detail = e.read().decode(errors="replace")[:400]
-        die(f"ElevenLabs said {e.code} for {path}:\n{detail}")
+        hint = "\nThat voice isn't in your account. Run with --list-voices and pick one with --voice <id>." if e.code in (400, 404) and "/text-to-speech/" in path else ""
+        die(f"ElevenLabs said {e.code} for {path}:\n{detail}{hint}")
     except urllib.error.URLError as e:
         die(f"Could not reach ElevenLabs: {e.reason}")
 
@@ -94,9 +95,9 @@ def find_video(lang, given):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--lang", choices=["nb", "en"], default="nb")
+    ap.add_argument("--lang", choices=["nb", "en"], default="en")
     ap.add_argument("--video", help="input video (default: tenkemakker-pitch-<lang>.mp4 next to this script or in ./out)")
-    ap.add_argument("--voice", default="EXAVITQu4vr4xnSDxMaL", help="ElevenLabs voice_id (default: Sarah). See --list-voices")
+    ap.add_argument("--voice", default="FGY2WhTYpPnrIDTdsKH5", help="ElevenLabs voice_id (default: Laura, upbeat and bright). See --list-voices")
     ap.add_argument("--model", default="eleven_multilingual_v2", help="TTS model id (e.g. eleven_multilingual_v2, eleven_v4)")
     ap.add_argument("--music-volume", type=float, default=0.22, help="music level under the voice, 0–1")
     ap.add_argument("--no-music", action="store_true")
@@ -134,7 +135,7 @@ def main():
                 print(f"Voice {i + 1}/8 …")
                 audio = api(f"/text-to-speech/{a.voice}?output_format=mp3_44100_128",
                             {"text": text, "model_id": a.model,
-                             "voice_settings": {"stability": 0.5, "similarity_boost": 0.75}}, key=key)
+                             "voice_settings": {"stability": 0.38, "similarity_boost": 0.75, "style": 0.35, "use_speaker_boost": True}}, key=key)
                 f.write_bytes(audio)
         clips.append(f)
 

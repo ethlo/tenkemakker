@@ -48,8 +48,8 @@ Tip: the local file (practice mode) gives the most predictable video. The live s
 
 ```bash
 export ELEVENLABS_API_KEY=...        # your own key, never committed
-python3 demo/voiceover.py            # tenkemakker-pitch-nb.mp4 -> tenkemakker-pitch-nb-voice.mp4
-python3 demo/voiceover.py --lang en
+python3 demo/voiceover.py            # English (default), upbeat voice "Laura": tenkemakker-pitch-en.mp4 -> tenkemakker-pitch-en-voice.mp4
+python3 demo/voiceover.py --lang nb  # Norwegian
 python3 demo/voiceover.py --list-voices   # then --voice <voice_id>
 ```
 
