@@ -170,6 +170,12 @@ All app code remains in index.html.
   with the new HTML by leaving the lab in scripted mode until support is confirmed.
 
 - **v2.10** (13:25): press-to-talk on by default (Morten's decision; can be turned off under Lyd, with a note that audio goes to Google). Endless tasks: tolerant parsing of Claude's reply and a visible technical reason if it still fails. Demo recorder `demo/record_demo.py`.
+- **v2.11** (13:35): conversation never gets stuck: an answer said or typed to Makker counts as an answer (also "11 delt på 12"); Makker accepts by the third explanation at the latest; teach prompt tolerates spoken, informal text.
+- **v2.12** (13:40): no empty Makker bubbles: the app falls back to a prepared reply if Claude's reply is empty; Worker gives Makker 1500 tokens (room for the model to think) and returns an error instead of an empty reply.
+- **v2.13** (13:45): long generated tasks no longer break the layout (wrapping highlight, smaller text for long tasks, shortened topic chip).
+- **v2.14** (13:48): 90-second pitch: `demo/SCRIPT.md` (8 timed beats, nb + en) and `demo/pitch.py`, which plays the beats with lower-third overlays, progress bar and timer and records an exactly 90-second video.
+- **v2.15** (14:20): `demo/voiceover.py` adds an ElevenLabs voice-over (one line per beat, on the beat) and instrumental music (ducked under the voice) to the pitch video. Runs on the presenter's machine with their own key.
+- **v2.16** (14:40): time-boxed public access: the Worker skips the login check until `PUBLIC_UNTIL` (ms timestamp binding). Opened 14:40–15:40 for the audience; Access policy set to bypass for that hour, then back to email login.
 
 ### Integration follow-up after PR #4
 
@@ -234,3 +240,4 @@ this review delivery; the agreed sequence requires a preview and facilitated pil
 - Tammet is an inspiration for representation and communication, not a label for a
   validated teaching intervention. No participant recruitment or learning-effect
   claim is made by this implementation. See PILOT.md for the facilitated protocol.
+

@@ -222,6 +222,14 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
 .vision-link{font-family:var(--f-game);font-size:1rem;text-decoration:none;color:#1e1748;background:var(--sun);padding:7px 14px;border-radius:999px;box-shadow:0 3px 0 var(--sun-dk);white-space:nowrap;align-self:center}
 .vision-link:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
 
+/* Lange (genererte) oppgaver skal aldri gjøre kortet bredere enn skjermen */
+.task{overflow-wrap:anywhere;min-width:0}
+.task.long{font-size:1.3rem;line-height:1.35}
+.task .math.wrap{white-space:normal;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.steps span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.rung > div{min-width:0;overflow-wrap:anywhere}
+@media (max-width:700px){ .task.long{font-size:1.12rem} }
+
 /* Nytt tema */
 .steps .new-topic{margin-left:8px;border:2px dashed var(--violet);background:transparent;color:var(--violet);font-weight:700;font-size:.8rem;padding:4px 10px;border-radius:999px;cursor:pointer;white-space:nowrap}
 .steps{flex-wrap:wrap}
@@ -1137,6 +1145,7 @@ function say(text, options = {}){
 }
 // lang: språket teksten er skrevet på. Byttet Ida språk mens Makker tenkte, leses svaret ikke høyt.
 function makker(text, mood, lang){
+  if(text==null || !String(text).trim()) return null;   // aldri en tom boble
   const m = el("div","msg m",text); $("chat").append(m); scrollChat();
   if(mood!==undefined) face(mood);
   if(!lang || lang===LANG) say(text);
@@ -1172,6 +1181,8 @@ function renderTaskText(){
   p.append(el("span",null,t.topic));
   const nt = el("button","new-topic",tr("newTopic")); nt.type="button"; nt.onclick = () => toggleTopic(); p.append(nt);
   $("task-text").innerHTML = t.html;
+  $("task-text").classList.toggle("long", (t.plain||"").length > 90);
+  $("task-text").querySelectorAll(".math").forEach(m=>{ if(m.textContent.length > 18) m.classList.add("wrap"); });
   if(TASKS[S.i].gen){ $("task-text").append(el("span","gen",tr("genBadge"))); }
 }
 function greet(){ makker(tr(S.i===0 ? "greetFirst" : "greetNext"), ""); }
@@ -1285,6 +1296,8 @@ async function sendExplain(){
     thinking.remove();
   }
   if(!res) res = scripted(t, txt);
+  // Makker skal aldri stå fast: etter tredje forklaring godtar han den uansett
+  if(!res.understood && S.tries >= 3){ res = {understood:true, reply: t.aha, summary: res.summary || t.sum}; }
   S.history.push({role:"assistant", content:res.reply});
   makker(res.reply, res.understood ? "happy" : "confused", lang);
   if(res.understood){
@@ -1305,8 +1318,25 @@ $("send").onclick = sendExplain;
 $("explain").addEventListener("keydown", e => { if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendExplain(); } });
 
 // Ida svarer på et hint: Makker veileder med spørsmål, aldri fasit
+// Sier eller skriver Ida svaret til Makker, teller det som et svar (naturlig med tale)
+function answerInText(txt){
+  const t = task(); const ans = t.answers.map(norm);
+  const words = txt.toLowerCase().replace(/[,;!?]/g," ").split(/\s+/).filter(Boolean);
+  const cands = new Set([norm(txt)]);
+  for(let i=0;i<words.length;i++){ cands.add(norm(words[i])); if(i+1<words.length) cands.add(norm(words[i]+words[i+1])); if(i+2<words.length) cands.add(norm(words[i]+words[i+1]+words[i+2])); }
+  // talegjenkjenning skriver ofte «11 tolvdeler» / «elleve tolvdeler» / «11 delt på 12»
+  const spoken = norm(txt).replace(/deltpå|delerpå|over|dividedby/g,"/");
+  cands.add(spoken);
+  return ans.find(a => cands.has(a) || spoken.includes(a) && a.length>=3) || null;
+}
 async function hintReply(txt){
   stopMic();
+  const said = !S.solved && answerInText(txt);
+  if(said){
+    me(txt); $("explain").value=""; grow();
+    $("answer").value = said; $("answer-form").requestSubmit();
+    return;
+  }
   me(txt); $("explain").value=""; grow(); $("send").disabled = true;
   S.tries++;
   S.history.push({role:"user", content:txt});
@@ -1314,7 +1344,7 @@ async function hintReply(txt){
   let reply = null;
   if(backend && !sampleFn){
     const thinking = el("div","msg m thinking",tr("thinking")); $("chat").append(thinking); scrollChat();
-    try{ const r = await callBackend({mode:"hint", ...backendTask(), hint:S.hint, history:S.history, lang}); reply = r && r.reply ? String(r.reply) : null; }catch(e){}
+    try{ const r = await callBackend({mode:"hint", ...backendTask(), hint:S.hint, history:S.history, lang}); reply = r && r.reply && String(r.reply).trim() ? String(r.reply).trim() : null; }catch(e){}
     thinking.remove();
   } else if(sampleFn){
     const thinking = el("div","msg m thinking",tr("thinking")); $("chat").append(thinking); scrollChat();
@@ -1387,7 +1417,7 @@ async function callBackend(body){
 async function askClaude(t){
   if(!sampleFn && backend){
     const r = await callBackend({mode:"teach", ...backendTask(), history:S.history, lang:LANG});
-    if(!r || typeof r.reply!=="string") return null;
+    if(!r || typeof r.reply!=="string" || !r.reply.trim()) return null;
     return {reply:r.reply, understood:!!r.understood, summary:String(r.summary||"")};
   }
   const convo = S.history.map(h => (h.role==="user"?"Ida: ":"Makker: ") + h.content).join("\n");
@@ -1403,11 +1433,11 @@ ${convo}
 Regler:
 - Svar på ${tr("aiLang")}, maks 2 korte setninger, varmt og nysgjerrig, i en tone som passer en 13-åring.
 - Ikke gi Ida svaret eller forklaringen selv. Er forklaringen hennes uklar eller feil, still ett konkret oppfølgingsspørsmål eller vis at du fortsatt er forvirret.
-- Sett understood=true bare når Ida har forklart kjerneideen med egne ord (det trenger ikke være perfekt). Da sier Makker «aha» og gjentar kort hva han lærte.
+- Idas tekst er ofte muntlig og ufullstendig (talegjenkjenning). Sett understood=true så snart hun nevner kjerneideen, selv kort, uformelt eller med skrivefeil. Er du i tvil og dette er hennes andre forklaring eller mer, sett true. Da sier Makker «aha» og gjentar kort hva han lærte.
 - summary: én nøytral linje til forelderen om HVA Ida forklarte (ikke sitat, ikke vurdering av henne), skrevet på ${tr("aiLang")}. Tom streng hvis understood=false.
 Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
   const r = await sampleFn.json(prompt, {modelTier:"quick", cache:false});
-  if(!r || typeof r.reply!=="string") return null;
+  if(!r || typeof r.reply!=="string" || !r.reply.trim()) return null;
   return {reply:r.reply, understood:!!r.understood, summary:String(r.summary||"")};
 }
 
