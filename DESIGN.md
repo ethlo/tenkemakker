@@ -122,3 +122,45 @@ Browser ──▶ Cloudflare Access (email login, one-time code)
 - **v2.3** (12:00): voice input off by default (opt-in with warning), read-aloud on-device only; badge "Snakket ut" replaced by "Krystallklar" (Makker understood on first explanation).
 - **v2.4** (12:05): press-and-hold to talk (hold the mic, release to send; works with mouse, touch and keyboard). Voice still opt-in.
 - **v2.5** (12:25): English alongside Norwegian bokmål (by Celina, PR #1, ported onto v2.4): NO/EN toggle; tasks, hints, Makker (scripted, artifact Claude and Cloudflare Worker), badges, class board, parent card, quick replies and voice texts translated.
+
+
+## Local fraction sequence prototype — 21 Oct 2026
+
+Requested as an experimental local extension after review of the Learning Ways material.
+Entry point: **Brøkverksted / Fraction lab**. The original three-task demo is still
+available under **Dagens tre / Today’s three**. All app code remains in index.html.
+
+### Sequence
+
+1. Try 2/3 + 1/4. Answers are checked as exact rational values, so 22/24 is accepted.
+2. Optionally explore two equal-sized wholes through fraction strips, number lines,
+   or equivalent fraction inputs. Splitting into twelfths changes the representation,
+   never the amount. The model does not calculate the sum. Marking pieces is a
+   pointing aid, not evidence of understanding.
+3. Explain why Makker's 3/7 idea is wrong. Local mode asks fixed follow-up questions
+   and records the explanation; it never automatically approves it after N attempts.
+   The learner may proceed after writing an explanation, regardless of an AI verdict.
+4. Try 1/4 + 1/6. The model starts closed and hints start unused. Support and attempts
+   are recorded independently of the first task.
+5. Review completion and support, download a session note, or restart. A parent card
+   shows activity without the learner's explanation text. Later learning is not tested.
+
+### Provisional prototype choices
+
+- No thinking points in this separate lab. This makes it possible to observe help
+  choices without changing the original demo's point economy. It is not a decision
+  about the team's eventual reward model.
+- Both Norwegian and English. No saved pupil session or accounts. Use fictional data.
+- Exact answers are checked; prose is not certified as understanding. AI responses
+  are follow-up questions, not gates. Artifact sampling and the Worker each have a
+  15-second client timeout and fall back to a visibly labelled scripted response.
+- Original browser voice settings remain; the lab offers read-aloud for the misconception.
+  No new speech provider or voice cloning integration.
+- The PDF's full observation protocol is not implemented. JSON exports retain attempts,
+  support and explanations for a facilitated fictional rehearsal.
+- The user explicitly requested new prototype functionality; event feature-freeze
+  instructions are not treated as a bar to this separate local experiment.
+- Proposed as a draft PR for review and local testing. Publishing the artifact,
+  merging to main and deploying the Worker are separate steps. A merge to main can
+  update the hosted HTML; the sequence-aware Worker must be deployed before enabling
+  hosted AI for this variant.
