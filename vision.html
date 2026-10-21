@@ -382,7 +382,7 @@ footer{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;fo
           <div class="ctl-top"><label for="s-pupils" data-i18n="lPupils">Elever</label><output id="o-pupils" class="num" for="s-pupils">450</output></div>
           <div class="presets" id="presets"></div>
           <input type="range" id="s-pupils" min="0" max="1000" step="1" value="0">
-          <p class="fine" data-i18n="pupilsFine">Grove, oppdiktede størrelser: én klasse 24, én skole 450, ungdomsskolen i Oslo ca. 25 000, alle elever i Oslo ca. 90 000.</p>
+          <p class="fine" data-i18n="pupilsFine">Én klasse 24 og én skole 450 er eksempler. Grunnskolen i Oslo hadde 64 675 elever høsten 2025 (Oslo kommune). Ungdomstrinnet er anslått til ca. 19 400, tre av ti årstrinn.</p>
         </div>
         <div class="ctl">
           <div class="ctl-top"><label for="s-share" data-i18n="lShare">Andel som bruker Tenkemakker i stedet for svar-KI</label><output id="o-share" class="num" for="s-share">60 %</output></div>
@@ -476,8 +476,8 @@ const STR = {
     p2kicker:"Del 2 · Skala", p2title:"Fra én elev til hele Oslo",
     stamp:"Regneeksempel · oppdiktede antakelser",
     lPupils:"Elever", lShare:"Andel som bruker Tenkemakker i stedet for svar-KI", lMin:"Minutter lekser per skoledag",
-    pupilsFine:"Grove, oppdiktede størrelser: én klasse 24, én skole 450, ungdomsskolen i Oslo ca. 25 000, alle elever i Oslo ca. 90 000.",
-    presets:["Én klasse","Én skole","Ungdomsskolen i Oslo","Alle elever i Oslo"],
+    pupilsFine:"Én klasse 24 og én skole 450 er eksempler. Grunnskolen i Oslo hadde 64 675 elever høsten 2025 (Oslo kommune). Ungdomstrinnet er anslått til ca. 19 400, tre av ti årstrinn.",
+    presets:["Én klasse","Én skole","Ungdomstrinnet i Oslo","Hele grunnskolen i Oslo"],
     dotOn:"Tenkemakker", dotOff:"Svar-KI", dotPer:n=>`Hver prikk ≈ ${n} elever`, dotPct:"Hver prikk = 1 % av elevene",
     oHours:"Timer med egen tenking i året, ekstra",
     hoursSub:(u,h)=>`${u} elever bruker Tenkemakker · ca. ${h} timer mer egen tenking per elev i året`,
@@ -488,7 +488,7 @@ const STR = {
       `Brukere = elever × andel = <code>${d.pupils} × ${s} %</code>`,
       `180 skoledager i året, ${m} minutter lekser per dag.`,
       `Med svar-KI er ca. 10 % av leksetiden egen tenking, med Tenkemakker ca. 70 %. Forskjellen (60 prosentpoeng) telles som ekstra egen tenking: <code>brukere × ${m} min × 180 × 0,6 ÷ 60</code>.`,
-      `Én forklaring (lære bort eller svare på et hint-spørsmål) per 15 minutter lekser: <code>brukere × ${m} × 180 ÷ 15</code>.`,
+      `Én forklaring (lære bort eller svare på et hint-spørsmål) per leksedag: <code>brukere × 180</code>.`,
       `1 av 10 forklaringer avslører en misforståelse som læreren ser i klasseoversikten før prøven.`,
       `Alle tall er avrundet og oppdiktet. Poenget er størrelsesorden, ikke presisjon.`
     ],
@@ -528,8 +528,8 @@ const STR = {
     p2kicker:"Part 2 · Scale", p2title:"From one pupil to all of Oslo",
     stamp:"Worked example · made-up assumptions",
     lPupils:"Pupils", lShare:"Share using Tenkemakker instead of an answer-AI", lMin:"Minutes of homework per school day",
-    pupilsFine:"Rough, made-up sizes: one class 24, one school 450, Oslo lower secondary about 25,000, all Oslo pupils about 90,000.",
-    presets:["One class","One school","Oslo lower secondary","All Oslo pupils"],
+    pupilsFine:"One class (24) and one school (450) are examples. Oslo's primary and lower secondary schools had 64,675 pupils in autumn 2025 (City of Oslo). Lower secondary is estimated at about 19,400, three of ten year groups.",
+    presets:["One class","One school","Oslo lower secondary","All Oslo primary + lower secondary"],
     dotOn:"Tenkemakker", dotOff:"Answer-AI", dotPer:n=>`Each dot ≈ ${n} pupils`, dotPct:"Each dot = 1% of pupils",
     oHours:"Extra hours of own thinking per year",
     hoursSub:(u,h)=>`${u} pupils use Tenkemakker · about ${h} more hours of own thinking per pupil per year`,
@@ -540,7 +540,7 @@ const STR = {
       `Users = pupils × share = <code>${d.pupils} × ${s}%</code>`,
       `180 school days a year, ${m} minutes of homework per day.`,
       `With an answer-AI about 10% of homework time is own thinking; with Tenkemakker about 70%. The difference (60 percentage points) counts as extra own thinking: <code>users × ${m} min × 180 × 0.6 ÷ 60</code>.`,
-      `One explanation (teaching back or answering a hint question) per 15 minutes of homework: <code>users × ${m} × 180 ÷ 15</code>.`,
+      `One explanation (teaching back or answering a hint question) per homework day: <code>users × 180</code>.`,
       `1 in 10 explanations reveals a misconception the teacher sees in the class overview before the test.`,
       `All numbers are rounded and made up. The point is the order of magnitude, not precision.`
     ],
@@ -756,8 +756,8 @@ function countTo(el, target, fmt){
 }
 
 /* ---------- Del 2: skala ---------- */
-const PRESETS = [24, 450, 25000, 90000];
-const MINP = 24, MAXP = 90000;
+const PRESETS = [24, 450, 19400, 64675];
+const MINP = 24, MAXP = 64675;
 const S = { pupils:450, share:60, min:30, gaps:[5,20,15] };
 const nf = () => new Intl.NumberFormat(LANG==="nb" ? "nb-NO" : "en-GB", {maximumFractionDigits:0});
 function nice(v){ // avrund til 2–3 gjeldende siffer for store tall
@@ -773,7 +773,7 @@ function renderPresets(){
   const box = $("presets"); box.innerHTML = "";
   PRESETS.forEach((n,i)=>{
     const b = document.createElement("button"); b.type = "button";
-    b.textContent = `${tr("presets")[i]} · ${(i>=2?"~":"")}${nf().format(n)}`;
+    b.textContent = `${tr("presets")[i]} · ${(i===2?"~":"")}${nf().format(n)}`;
     b.dataset.n = n;
     b.addEventListener("click", ()=>{ S.pupils = n; $("s-pupils").value = toSlider(n); calc(); });
     box.append(b);
@@ -801,7 +801,7 @@ function calc(){
   const homeworkMin = users * S.min * 180;
   const hours = homeworkMin * 0.6 / 60;
   const perPupil = S.min * 180 * 0.6 / 60;
-  const expl = homeworkMin / 15;
+  const expl = users * 180;   // én forklaring per leksøkt (dag)
   const mis = expl * 0.1;
   $("o-pupils").textContent = nf().format(S.pupils);
   $("o-share").textContent = S.share + " %";

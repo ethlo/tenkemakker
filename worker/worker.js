@@ -170,13 +170,13 @@ Ingen hint får inneholde svaret på denne oppgaven.`;
   const r = await fetch("https://api.anthropic.com/v1/messages", {
     method: "POST",
     headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: env.MODEL || "claude-haiku-5-5", max_tokens: 900, messages: [{ role: "user", content: prompt }] })
+    body: JSON.stringify({ model: env.MODEL || "claude-haiku-5-5", max_tokens: 2000, messages: [{ role: "user", content: prompt }] })
   });
-  if (!r.ok) return json({ error: "upstream", status: r.status }, 502);
+  if (!r.ok) { let d = ""; try { d = (await r.text()).slice(0, 200); } catch {} return json({ error: "upstream", status: r.status, detail: d }, 502); }
   const data = await r.json();
   const text = (data.content || []).filter(c => c.type === "text").map(c => c.text).join("");
   const m = text.match(/\{[\s\S]*\}/);
-  try { return json(JSON.parse(m[0])); } catch { return json({ error: "bad_output" }, 502); }
+  try { return json(JSON.parse(m[0])); } catch { return json({ error: "bad_output", stop: data.stop_reason || "", status: 0 }, 502); }
 }
 
 // ---- Cloudflare Access JWT verification ----
