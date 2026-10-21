@@ -1109,6 +1109,15 @@ Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
   return {reply:r.reply, understood:!!r.understood, summary:String(r.summary||"")};
 }
 
+// Lyd-menyen lukkes ved klikk utenfor eller Escape
+document.addEventListener("click", e => {
+  document.querySelectorAll("details.settings[open]").forEach(d => { if(!d.contains(e.target)) d.open = false; });
+});
+document.addEventListener("keydown", e => {
+  if(e.key !== "Escape") return;
+  document.querySelectorAll("details.settings[open]").forEach(d => { d.open = false; d.querySelector("summary").focus(); });
+});
+
 // ---------- Tale inn (Google Chrome / Edge når filen åpnes lokalt) ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 // Tale inn er AV som standard (personvern): lyd sendes til Google når den brukes
