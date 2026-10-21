@@ -16,6 +16,7 @@ async function download(p){const d=p.waitForEvent('download');await p.locator('#
   p.on('pageerror',e=>errors.push(e.message));
   await p.goto(file);if(lang==='en')await p.locator('#lang-en').click();
   await p.locator(width===390?'[data-v="brok"]':'#tab-brok').click();
+  check(await p.getByRole('img',{name:'2 over 3',exact:true}).count()===1,'Fraction has a spoken screen-reader label');
   const overflow=async()=>check(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'No overflow at '+width);
   check(!(await p.locator('#f-explore').getAttribute('open')),'First task starts without model');
   await answer(p,'3/7');

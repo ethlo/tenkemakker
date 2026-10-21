@@ -2051,7 +2051,7 @@ let F = freshFraction();
 const escapeF = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const ft = key => escapeF(tr(key));
 const fRec = () => F.records[F.active];
-const frac = (a,b) => `<span class="f-frac"><span>${a}</span><span>${b}</span></span>`;
+const frac = (a,b) => `<span class="f-frac" role="img" aria-label="${escapeF(tr('fSpeechFraction',a,b))}"><span>${a}</span><span>${b}</span></span>`;
 const fSelected = row => fRec().selectedRow===row || fRec().marks.some(k=>k.startsWith(row+':'));
 const fExpression = index => { const [a,b,c,d]=fractionTasks[index];return [[a,b],[c,d]].map(([n,den],row)=>`<span data-expression-row="${row}" class="f-linked ${fSelected(row)?'selected':''}">${frac(n,den)}</span>`).join('<span class="f-plus">+</span>'); };
 const fNames = () => ['strips','line','symbols'];
@@ -2147,7 +2147,7 @@ function bindFraction(){
  }
  document.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>{F.rep=b.dataset.rep;fTrackRep();renderFraction();document.querySelector(`[data-rep="${F.rep}"]`).focus({preventScroll:true});});
  if($('f-denominator-form')){
-  $('f-denominator').oninput=e=>{r.denominatorDraft=e.target.value;r.denFeedback=null;$('f-den-feedback').textContent='';};
+  $('f-denominator').oninput=e=>{r.denominatorDraft=e.target.value;r.denFeedback=null;e.target.setAttribute('aria-invalid','false');$('f-den-feedback').textContent='';};
   $('f-denominator-form').onsubmit=e=>{
    e.preventDefault();const value=r.denominatorDraft.trim(),n=Number(value),[,b,,d]=fractionTasks[F.active];
    const range=/^\d+$/.test(value)&&Number.isInteger(n)&&n>=2&&n<=24,valid=range&&n%b===0&&n%d===0;
