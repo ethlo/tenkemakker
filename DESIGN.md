@@ -195,3 +195,42 @@ All app code remains in index.html.
   contracts, both task flows, parent/teacher scope, speech mocks, mobile/theme/language
   variants, and delayed responses. They do not establish learning effects or live AI
   quality. Merge and deployment of this follow-up are separate from local verification.
+
+### Connected fraction learning — implementation for review, 21 Oct 2026
+
+This update supersedes the fixed-twelfths sequence above. It is based on PR #5
+(head a0b1eeb, still open when implementation began), in an isolated worktree.
+The user approved a limited update to the optional fraction lab, with text,
+pointing and local read-aloud. Existing main-task, teacher and score behavior stays
+outside this experiment. No main-branch push or production publication is part of
+this review delivery; the agreed sequence requires a preview and facilitated pilot.
+
+- The single task list defines 2/3 + 1/4 and independent transfer 1/2 + 1/5.
+  Models start closed. The learner can request help at any point or continue with an
+  explicitly unresolved task. A written explanation is optional and never AI-gated.
+- Learners choose a common denominator from 2–24. All valid common multiples are
+  accepted, including 24 and 20; the original quantities and equal whole lengths
+  remain invariant. Invalid choices explain divisibility and restore original parts.
+  Each new applied partition clears numerator drafts, marks and old feedback.
+- Strips/number lines appear alongside the same fraction expression and equivalent
+  numerator inputs. Marking pieces or selecting a number line highlights the related
+  expression with an outline as well as color. Symbols-only remains available.
+- Every validly formatted answer attempt has an immutable snapshot of hints,
+  representations opened, denominator choices, markings and read-aloud requests.
+  Format errors are input validation, not mathematical attempts. Explanation records
+  include the same model context. A correct sum is not a judgment of understanding.
+- Export version 2 retains tasks and explanations and adds the support snapshots,
+  denominator history and `endedUnresolved`. There is no import or persisted pupil
+  session. The parent card only shows activity and support, never explanation text.
+- Explicit local read-aloud covers the problem, visible guidance and latest follow-up;
+  stop and replay are always available. Fraction notation is verbalized. Missing or
+  nonlocal voices remain silent with an in-lab message. Voice requests are logged as
+  choices, not proof that audio was heard. No microphone was added to the lab.
+- The printable manual follow-up uses 1/3 + 1/6 after 2–3 days. Print output contains
+  only the blank follow-up sheet, with no session transcript or pupil identifier.
+- `/api/health` and `/api/makker` retain fractionSequence/sequenceVersion 1. Only
+  the fixed first-task explanation uses AI; the prompt now says "tried" rather than
+  "solved" to include unresolved attempts. Artifact/local fallbacks remain intact.
+- Tammet is an inspiration for representation and communication, not a label for a
+  validated teaching intervention. No participant recruitment or learning-effect
+  claim is made by this implementation. See PILOT.md for the facilitated protocol.

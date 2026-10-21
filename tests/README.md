@@ -36,3 +36,17 @@ Coverage:
 
 These checks do not prove live-model quality, real microphone behavior, learning
 outcomes, production deployment or CI success. The PR does not configure hosted CI.
+
+Connected-learning extension:
+
+```sh
+node tests/fraction-connected.cjs
+```
+
+This suite checks all denominator choices from 2–24 (plus invalid formats/ranges),
+quantity preservation in strips/number lines, keyboard links to expressions,
+immutable per-attempt support, independent transfer, unresolved progression, version
+2 export, transcript-free parent cards, print isolation/cleanup and read/stop/replay.
+It uses both UI languages at 390px dark and desktop light. `TEST_SCREENSHOTS` also
+captures model and print previews. Speech adapters exercise browser UI behavior;
+they do not establish audible quality or an installed system voice.

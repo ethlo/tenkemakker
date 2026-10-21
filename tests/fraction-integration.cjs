@@ -39,7 +39,7 @@ async function shot(p,name){if(screenshotDir)await p.screenshot({path:path.join(
   await tab(p,'laerer');const initialTeacher=await p.locator('#t-grid tr.me').innerText();
   await tab(p,'brok');check((await p.locator('.f-prototype').innerText()).includes(lang==='en'?'optional':'valgfritt'),'Lab labelled optional');
   for(const bad of ['3/7','11/0','100000/120000']){await p.locator('#f-answer').fill(bad);await p.locator('#f-answer').press('Enter');check(!(await p.locator('#f-advance').count()),'Invalid/incorrect fraction rejected: '+bad);}
-  await p.locator('#f-explore summary').click();await p.locator('#f-equalize').click();
+  await p.locator('#f-explore summary').click();await p.locator('#f-denominator').fill('12');await p.locator('#f-equalize').click();
   check(await p.locator('.f-piece.filled:not(.second)').count()===8&&await p.locator('.f-piece.filled.second').count()===3,'First model preserves amounts');
   await p.locator('[data-rep="line"]').click();check(await p.locator('.f-line').count()===2,'Number lines render');
   await p.locator('[data-rep="symbols"]').click();await p.locator('#f-part-0').fill('8');await p.locator('#f-part-1').fill('3');await p.locator('#f-parts button').click();
@@ -54,9 +54,9 @@ async function shot(p,name){if(screenshotDir)await p.screenshot({path:path.join(
   await p.locator('#f-explore summary').click();check(await p.locator('.f-chat').evaluate(e=>Math.abs(e.scrollTop-30)<2),'Model toggle preserves reading position');
   await send(p);await shot(p,'chat-'+lang+'-'+(dark?'dark':'light'));
   await p.locator('#f-transfer').click();check(await p.locator('#f-explore').getAttribute('open')===null,'Transfer starts with closed model');
-  await p.locator('#f-explore summary').click();await p.locator('#f-equalize').click();
-  check(await p.locator('.f-piece.filled:not(.second)').count()===3&&await p.locator('.f-piece.filled.second').count()===2,'Transfer preserves amounts');
-  await p.locator('#f-answer').fill('10/24');await p.locator('#f-answer').press('Enter');await p.locator('#f-advance').click();
+  await p.locator('#f-explore summary').click();await p.locator('#f-denominator').fill('10');await p.locator('#f-equalize').click();
+  check(await p.locator('.f-piece.filled:not(.second)').count()===5&&await p.locator('.f-piece.filled.second').count()===2,'Transfer preserves amounts');
+  await p.locator('#f-answer').fill('14/20');await p.locator('#f-answer').press('Enter');await p.locator('#f-advance').click();
   const dl=p.waitForEvent('download');await p.locator('#f-download').click();const note=JSON.parse(fs.readFileSync(await (await dl).path(),'utf8'));
   check(note.tasks.every(t=>t.solved)&&note.explanations.length===7,'Export retains task activity and explanations');
   await tab(p,'forelder');check(await p.locator('#fraction-parent').isVisible(),'Started lab has its own parent card');
