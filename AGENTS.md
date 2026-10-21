@@ -6,7 +6,7 @@ Read `DESIGN.md` first for the why. This file is the how.
 ## Context
 
 - Built at **Claude Impact Lab**, Mesh Oslo, 21 Oct 2026 (Day of AI, Oslo Innovation Week).
-  Day: 10:20 build round 1 · 11:45 lunch · 12:15 build round 2 · **13:00 feature freeze** · 13:15–14:00 demos (5 min per team).
+  Day: 10:20 build round 1 · 11:45 lunch · 12:15 build round 2 · ~~13:00 feature freeze~~ (lifted 12:56) · 13:15–14:00 demos (5 min per team).
 - Team: a philosopher, an economist/actor, builders, parents. Some never write code. Explain changes in plain language.
 - Area: *My kids* → learning and thinking. Person: **Ida, 13, 8th grade (fictional)**.
 - Event brief: https://www.gritai.studio/meetups/claude-impact-lab/brief
@@ -42,7 +42,7 @@ Open decisions are tracked in a live decision board (Claude artifact, linked in 
 
 - One change at a time; say what changed in plain words.
 - After each working version, suggest 2–3 next steps (small and big), each naming what it would show or test.
-- From 13:00: no new features — fix, polish, help with the demo script.
+- Feature freeze was lifted at 12:56 by Morten; still prefer fixes and polish close to the demo.
 
 ## Test before saying "done"
 

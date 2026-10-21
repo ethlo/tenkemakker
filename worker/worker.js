@@ -10,7 +10,7 @@
 //   ACCESS_TEAM        plain text, e.g. https://ethlo.cloudflareaccess.com
 //   MODEL              plain text, optional (default claude-haiku-5-5)
 
-const PAGE_URL = "https://raw.githubusercontent.com/ethlo/tenkemakker/main/index.html";
+const RAW = "https://raw.githubusercontent.com/ethlo/tenkemakker/main/";
 
 // Prompts are built here from the task id. The browser only sends the task id,
 // mode and conversation, so the endpoint can't be used as a general-purpose Claude.
@@ -51,18 +51,21 @@ export default {
       return newTask(req, env);
     }
     if (url.pathname === "/" || url.pathname === "/index.html") {
-      return page(ctx);
+      return page(ctx, "index.html");
+    }
+    if (url.pathname === "/vision.html" || url.pathname === "/2030") {
+      return page(ctx, "vision.html");
     }
     return new Response("Not found", { status: 404 });
   }
 };
 
-async function page(ctx) {
+async function page(ctx, file) {
   const cache = caches.default;
-  const key = new Request("https://tenkemakker.internal/index.html");
+  const key = new Request("https://tenkemakker.internal/" + file);
   let res = await cache.match(key);
   if (!res) {
-    const gh = await fetch(PAGE_URL + "?t=" + Math.floor(Date.now() / 20000), { cf: { cacheTtl: 0 } });
+    const gh = await fetch(RAW + file + "?t=" + Math.floor(Date.now() / 20000), { cf: { cacheTtl: 0 } });
     if (!gh.ok) return new Response("Kunne ikke hente siden fra GitHub.", { status: 502 });
     res = new Response(await gh.text(), {
       headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=20" }

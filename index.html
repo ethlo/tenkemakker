@@ -218,6 +218,10 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
 .settings-pop select{padding:6px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);font-size:.85rem}
 .bottomnav{display:none}
 
+/* Lenke til 2030-siden */
+.vision-link{font-family:var(--f-game);font-size:1rem;text-decoration:none;color:#1e1748;background:var(--sun);padding:7px 14px;border-radius:999px;box-shadow:0 3px 0 var(--sun-dk);white-space:nowrap;align-self:center}
+.vision-link:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
+
 /* Nytt tema */
 .steps .new-topic{margin-left:8px;border:2px dashed var(--violet);background:transparent;color:var(--violet);font-weight:700;font-size:.8rem;padding:4px 10px;border-radius:999px;cursor:pointer;white-space:nowrap}
 .steps{flex-wrap:wrap}
@@ -370,6 +374,7 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
         <button id="lang-nb" type="button" aria-pressed="true" lang="nb" title="Norsk">NO</button>
         <button id="lang-en" type="button" aria-pressed="false" lang="en" title="English">EN</button>
       </div>
+      <a class="vision-link" href="vision.html" data-i18n-title="visionTitle" title="Se Tenkemakker i 2030">2030 →</a>
     </div>
   </header>
 
@@ -575,6 +580,7 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
 // ---------- Språk: norsk bokmål (standard) og engelsk ----------
 const STR = {
   nb:{
+    visionTitle:"Se Tenkemakker i 2030: samme ettermiddag to ganger, og hele Oslo",
     topicTitle:"Øv på hva du vil", newTopic:"+ Nytt tema", topicPh:"Hva vil du øve på? F.eks. «areal av sirkel»", makeTask:"Lag oppgave",
     topicPresets:["Areal av sirkel","Sannsynlighet","Negative tall","Brøk ganger brøk"],
     making:"Makker lager en ny oppgave til deg …", madeTask:t=>`Ny oppgave om ${t}! Prøv selv først, så hjelper jeg om du står fast.`,
@@ -680,6 +686,7 @@ const STR = {
     tPrivacy:"Læreren ser mønstre og sammendrag, ikke samtalene elevene har med Makker. Alle elever og tall her er oppdiktet."
   },
   en:{
+    visionTitle:"See Tenkemakker in 2030: the same afternoon twice, and all of Oslo",
     topicTitle:"Practise anything", newTopic:"+ New topic", topicPh:"What do you want to practise? E.g. “area of a circle”", makeTask:"Make task",
     topicPresets:["Area of a circle","Probability","Negative numbers","Multiplying fractions"],
     making:"Makker is making a new task for you …", madeTask:t=>`New task on ${t}! Try it yourself first, and I'll help if you get stuck.`,
@@ -1143,6 +1150,7 @@ $("answer-form").onsubmit = e => {
   if(t.answers.map(norm).includes(v)){
     S.solved = true;
     S.today.push(S.hint);
+    S.byTask = S.byTask || {}; S.byTask[S.i] = S.hint;   // per oppgave, for lærervisningen
     const pts = SOLVE_TP[S.hint];
     if(S.hint===0) setFeedback("right0", null, "good"); else setFeedback("rightN", S.hint, "good");
     $("answer").disabled = true; renderLadder();
@@ -1627,7 +1635,7 @@ $("answer-form").addEventListener("submit", () => {
 function idaRow(){
   const cells = [0,1,2].map(k=>{
     const taught = S.said.some(s=>s.i===k);
-    if(k < S.today.length) return {lv:S.today[k], solved:true, mis:T_IDA.mis[k], taught};
+    if(S.byTask && k in S.byTask) return {lv:S.byTask[k], solved:true, mis:T_IDA.mis[k], taught};
     if(k===S.i && (S.hint>0 || T_IDA.tried[k])) return {lv:S.hint, solved:false, mis:T_IDA.mis[k], mins:0, live:true};
     return null;
   });
