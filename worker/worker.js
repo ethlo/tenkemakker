@@ -126,7 +126,7 @@ ${convo}
 Regler:
 - Svar på ${L}, maks 2 korte setninger, varmt og nysgjerrig, i en tone som passer en 13-åring.
 - Ikke gi Ida svaret eller forklaringen selv. Er forklaringen hennes uklar eller feil, still ett konkret oppfølgingsspørsmål eller vis at du fortsatt er forvirret.
-- Sett understood=true bare når Ida har forklart kjerneideen med egne ord (det trenger ikke være perfekt). Da sier Makker «aha» og gjentar kort hva han lærte.
+- Idas tekst er ofte muntlig og ufullstendig (talegjenkjenning). Sett understood=true så snart hun nevner kjerneideen, selv kort, uformelt eller med skrivefeil. Er du i tvil og dette er hennes andre forklaring eller mer, sett true. Da sier Makker «aha» og gjentar kort hva han lærte.
 - summary: én nøytral linje til forelderen om HVA Ida forklarte (ikke sitat, ikke vurdering av henne), skrevet på ${L}. Tom streng hvis understood=false.
 Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
 
@@ -139,7 +139,7 @@ Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
     },
     body: JSON.stringify({
       model: env.MODEL || "claude-haiku-5-5",
-      max_tokens: 300,
+      max_tokens: 1500,
       messages: [{ role: "user", content: prompt }]
     })
   });
@@ -150,6 +150,7 @@ Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
   let out = null;
   try { out = m ? JSON.parse(m[0]) : null; } catch { out = null; }
   if (!out || typeof out.reply !== "string") out = { reply: text.trim().slice(0, 400), understood: false, summary: "" };
+  if (!out.reply.trim()) return json({ error: "empty", stop: data.stop_reason || "" }, 502);
   return json({ reply: out.reply, understood: !!out.understood, summary: String(out.summary || "") });
 }
 

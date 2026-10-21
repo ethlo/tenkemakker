@@ -1107,6 +1107,7 @@ function say(text){
 }
 // lang: språket teksten er skrevet på. Byttet Ida språk mens Makker tenkte, leses svaret ikke høyt.
 function makker(text, mood, lang){
+  if(text==null || !String(text).trim()) return null;   // aldri en tom boble
   const m = el("div","msg m",text); $("chat").append(m); scrollChat();
   if(mood!==undefined) face(mood);
   if(!lang || lang===LANG) say(text);
@@ -1293,7 +1294,7 @@ async function hintReply(txt){
   let reply = null;
   if(backend && !sampleFn){
     const thinking = el("div","msg m thinking",tr("thinking")); $("chat").append(thinking); scrollChat();
-    try{ const r = await callBackend({mode:"hint", ...backendTask(), hint:S.hint, history:S.history, lang}); reply = r && r.reply ? String(r.reply) : null; }catch(e){}
+    try{ const r = await callBackend({mode:"hint", ...backendTask(), hint:S.hint, history:S.history, lang}); reply = r && r.reply && String(r.reply).trim() ? String(r.reply).trim() : null; }catch(e){}
     thinking.remove();
   } else if(sampleFn){
     const thinking = el("div","msg m thinking",tr("thinking")); $("chat").append(thinking); scrollChat();
@@ -1366,7 +1367,7 @@ async function callBackend(body){
 async function askClaude(t){
   if(!sampleFn && backend){
     const r = await callBackend({mode:"teach", ...backendTask(), history:S.history, lang:LANG});
-    if(!r || typeof r.reply!=="string") return null;
+    if(!r || typeof r.reply!=="string" || !r.reply.trim()) return null;
     return {reply:r.reply, understood:!!r.understood, summary:String(r.summary||"")};
   }
   const convo = S.history.map(h => (h.role==="user"?"Ida: ":"Makker: ") + h.content).join("\n");
@@ -1386,7 +1387,7 @@ Regler:
 - summary: én nøytral linje til forelderen om HVA Ida forklarte (ikke sitat, ikke vurdering av henne), skrevet på ${tr("aiLang")}. Tom streng hvis understood=false.
 Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
   const r = await sampleFn.json(prompt, {modelTier:"quick", cache:false});
-  if(!r || typeof r.reply!=="string") return null;
+  if(!r || typeof r.reply!=="string" || !r.reply.trim()) return null;
   return {reply:r.reply, understood:!!r.understood, summary:String(r.summary||"")};
 }
 

@@ -170,3 +170,4 @@ available under **Dagens tre / Today’s three**. All app code remains in index.
   hosted AI for this variant.
 - **v2.10** (13:25): press-to-talk on by default (Morten's decision; can be turned off under Lyd, with a note that audio goes to Google). Endless tasks: tolerant parsing of Claude's reply and a visible technical reason if it still fails. Demo recorder `demo/record_demo.py`.
 - **v2.11** (13:35): conversation never gets stuck: an answer said or typed to Makker counts as an answer (also "11 delt på 12"); Makker accepts by the third explanation at the latest; teach prompt tolerates spoken, informal text.
+- **v2.12** (13:40): no empty Makker bubbles: the app falls back to a prepared reply if Claude's reply is empty; Worker gives Makker 1500 tokens (room for the model to think) and returns an error instead of an empty reply.
