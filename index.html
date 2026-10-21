@@ -1245,6 +1245,8 @@ async function sendExplain(){
     thinking.remove();
   }
   if(!res) res = scripted(t, txt);
+  // Makker skal aldri stå fast: etter tredje forklaring godtar han den uansett
+  if(!res.understood && S.tries >= 3){ res = {understood:true, reply: t.aha, summary: res.summary || t.sum}; }
   S.history.push({role:"assistant", content:res.reply});
   makker(res.reply, res.understood ? "happy" : "confused", lang);
   if(res.understood){
@@ -1265,8 +1267,25 @@ $("send").onclick = sendExplain;
 $("explain").addEventListener("keydown", e => { if(e.key==="Enter" && !e.shiftKey){ e.preventDefault(); sendExplain(); } });
 
 // Ida svarer på et hint: Makker veileder med spørsmål, aldri fasit
+// Sier eller skriver Ida svaret til Makker, teller det som et svar (naturlig med tale)
+function answerInText(txt){
+  const t = task(); const ans = t.answers.map(norm);
+  const words = txt.toLowerCase().replace(/[,;!?]/g," ").split(/\s+/).filter(Boolean);
+  const cands = new Set([norm(txt)]);
+  for(let i=0;i<words.length;i++){ cands.add(norm(words[i])); if(i+1<words.length) cands.add(norm(words[i]+words[i+1])); if(i+2<words.length) cands.add(norm(words[i]+words[i+1]+words[i+2])); }
+  // talegjenkjenning skriver ofte «11 tolvdeler» / «elleve tolvdeler» / «11 delt på 12»
+  const spoken = norm(txt).replace(/deltpå|delerpå|over|dividedby/g,"/");
+  cands.add(spoken);
+  return ans.find(a => cands.has(a) || spoken.includes(a) && a.length>=3) || null;
+}
 async function hintReply(txt){
   stopMic();
+  const said = !S.solved && answerInText(txt);
+  if(said){
+    me(txt); $("explain").value=""; grow();
+    $("answer").value = said; $("answer-form").requestSubmit();
+    return;
+  }
   me(txt); $("explain").value=""; grow(); $("send").disabled = true;
   S.tries++;
   S.history.push({role:"user", content:txt});
@@ -1363,7 +1382,7 @@ ${convo}
 Regler:
 - Svar på ${tr("aiLang")}, maks 2 korte setninger, varmt og nysgjerrig, i en tone som passer en 13-åring.
 - Ikke gi Ida svaret eller forklaringen selv. Er forklaringen hennes uklar eller feil, still ett konkret oppfølgingsspørsmål eller vis at du fortsatt er forvirret.
-- Sett understood=true bare når Ida har forklart kjerneideen med egne ord (det trenger ikke være perfekt). Da sier Makker «aha» og gjentar kort hva han lærte.
+- Idas tekst er ofte muntlig og ufullstendig (talegjenkjenning). Sett understood=true så snart hun nevner kjerneideen, selv kort, uformelt eller med skrivefeil. Er du i tvil og dette er hennes andre forklaring eller mer, sett true. Da sier Makker «aha» og gjentar kort hva han lærte.
 - summary: én nøytral linje til forelderen om HVA Ida forklarte (ikke sitat, ikke vurdering av henne), skrevet på ${tr("aiLang")}. Tom streng hvis understood=false.
 Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
   const r = await sampleFn.json(prompt, {modelTier:"quick", cache:false});

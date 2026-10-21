@@ -169,3 +169,4 @@ available under **Dagens tre / Today’s three**. All app code remains in index.
   update the hosted HTML; the sequence-aware Worker must be deployed before enabling
   hosted AI for this variant.
 - **v2.10** (13:25): press-to-talk on by default (Morten's decision; can be turned off under Lyd, with a note that audio goes to Google). Endless tasks: tolerant parsing of Claude's reply and a visible technical reason if it still fails. Demo recorder `demo/record_demo.py`.
+- **v2.11** (13:35): conversation never gets stuck: an answer said or typed to Makker counts as an answer (also "11 delt på 12"); Makker accepts by the third explanation at the latest; teach prompt tolerates spoken, informal text.
