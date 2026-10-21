@@ -1129,7 +1129,20 @@ $("voice-toggle").onchange = () => {
 };
 let rec = null, listening = false, baseText = "";
 function micNote(t){ $("mic-note").hidden = !t; $("mic-note").textContent = t||""; }
-function stopMic(){ if(rec && listening){ try{ rec.stop(); }catch(e){} } }
+// Stopp opptaket. Hvis nettleseren ikke avslutter innen kort tid, avbryt hardt
+let stopTimer = 0;
+function stopMic(){
+  if(!rec) return;
+  const r = rec;
+  try{ r.stop(); }catch(e){}
+  clearTimeout(stopTimer);
+  stopTimer = setTimeout(()=>{ if(rec === r){ try{ r.abort(); }catch(e){} micOff(r); } }, 1500);
+}
+function micOff(r){
+  if(rec !== r) return;
+  rec = null; listening = false; clearTimeout(stopTimer);
+  $("mic").classList.remove("on"); $("mic-label").textContent = tr("talk");
+}
 function renderSrLangs(){
   const sel = $("sr-lang"); sel.innerHTML = "";
   tr("srLangs").forEach(([v,label])=>{ const o = el("option",null,label); o.value = v; sel.append(o); });
@@ -1137,47 +1150,61 @@ function renderSrLangs(){
 // Trykk og hold for å snakke: start ved trykk, slipp for å sende
 let holding = false, pressAt = 0;
 function startRec(){
-  if(!voiceOn() || listening) return;
+  // rec er satt fra start() til onend, så et nytt trykk under oppstart lager aldri en ekstra (foreldreløs) mikrofon
+  if(!voiceOn() || rec) return;
   if(!SR){ micNote(tr("noSR")); return; }
   try{ speechSynthesis.cancel(); }catch(e){}
-  rec = new SR(); rec.lang = $("sr-lang").value; rec.interimResults = true; rec.continuous = true;
+  const r = rec = new SR(); r.lang = $("sr-lang").value; r.interimResults = true; r.continuous = true;
   baseText = $("explain").value ? $("explain").value.trim()+" " : "";
-  rec.onresult = ev => {
+  r.onresult = ev => {
+    if(rec !== r) return;
     let fin="", tmp="";
-    for(let k=0;k<ev.results.length;k++){ const r=ev.results[k]; (r.isFinal? (fin+=r[0].transcript) : (tmp+=r[0].transcript)); }
+    for(let k=0;k<ev.results.length;k++){ const x=ev.results[k]; (x.isFinal? (fin+=x[0].transcript) : (tmp+=x[0].transcript)); }
     $("explain").value = baseText + fin + tmp; grow();
   };
-  rec.onstart = () => {
+  r.onstart = () => {
+    if(rec !== r) return;
+    if(!holding){ stopMic(); return; }   // sluppet før mikrofonen rakk å starte
     listening=true; $("mic").classList.add("on"); $("mic-label").textContent=tr("stop");
     micNote(tr("listening"));
-    if(!holding) stopMic();   // sluppet før mikrofonen rakk å starte
   };
-  rec.onend = () => {
-    listening=false; $("mic").classList.remove("on"); $("mic-label").textContent=tr("talk");
+  r.onend = () => {
+    if(rec !== r) return;
+    micOff(r);
     if($("mic-note").dataset.err) return;
     if($("explain").value.trim()){ micNote(""); setTimeout(()=>{ if($("explain").value.trim()) sendExplain(); }, 250); }
     else micNote(tr(Date.now()-pressAt < 400 ? "holdTip" : "noSpeech"));
   };
-  rec.onerror = ev => {
+  r.onerror = ev => {
+    if(rec !== r) return;
     $("mic-note").dataset.err = "1";
     micNote(tr(ev.error==="not-allowed"||ev.error==="service-not-allowed" ? "micBlocked" : ev.error==="no-speech" ? "noSpeech" : "srFail"));
     setTimeout(()=>{ delete $("mic-note").dataset.err; }, 300);
   };
-  try{ rec.start(); }catch(e){ micNote(tr("micFail")); }
+  try{ r.start(); }catch(e){ micOff(r); micNote(tr("micFail")); }
 }
 const micBtn = $("mic");
-micBtn.addEventListener("pointerdown", e => {
-  e.preventDefault(); holding = true; pressAt = Date.now();
-  try{ micBtn.setPointerCapture(e.pointerId); }catch(_){}
-  startRec();
-});
+const press = () => { holding = true; pressAt = Date.now(); startRec(); };
 const release = () => { if(!holding) return; holding = false; stopMic(); };
+micBtn.addEventListener("pointerdown", e => {
+  if(e.button > 0) return;
+  e.preventDefault();
+  try{ micBtn.setPointerCapture(e.pointerId); }catch(_){}
+  press();
+});
+// Slipp hvor som helst: på knappen, utenfor, eller når fanen skjules.
+// Ikke slipp når vinduet mister fokus: Chromes tillatelsesdialog gjør det, og da lagres ikke "Tillat".
 micBtn.addEventListener("pointerup", release);
 micBtn.addEventListener("pointercancel", release);
+micBtn.addEventListener("lostpointercapture", release);
+window.addEventListener("pointerup", release);
+document.addEventListener("visibilitychange", () => { if(document.hidden) release(); });
 micBtn.addEventListener("contextmenu", e => e.preventDefault());
+micBtn.addEventListener("click", e => e.preventDefault());
 // Tastatur: hold mellomrom eller Enter på knappen
-micBtn.addEventListener("keydown", e => { if((e.key===" "||e.key==="Enter") && !e.repeat){ e.preventDefault(); holding = true; pressAt = Date.now(); startRec(); } });
+micBtn.addEventListener("keydown", e => { if((e.key===" "||e.key==="Enter") && !e.repeat){ e.preventDefault(); press(); } });
 micBtn.addEventListener("keyup", e => { if(e.key===" "||e.key==="Enter"){ e.preventDefault(); release(); } });
+micBtn.addEventListener("blur", () => { if(document.hasFocus()) release(); });
 
 // ---------- Forelder ----------
 function renderParent(){
