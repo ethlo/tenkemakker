@@ -131,8 +131,9 @@ Browser ──▶ Cloudflare Access (email login, one-time code)
 ## Local fraction sequence prototype — 21 Oct 2026
 
 Requested as an experimental local extension after review of the Learning Ways material.
-Entry point: **Brøkverksted / Fraction lab**. The original three-task demo is still
-available under **Dagens tre / Today’s three**. All app code remains in index.html.
+The normal **Oppgave / Task** tab remains the start screen.
+**Brøkverksted / Fraction lab** is an optional experiment with separate activity records.
+All app code remains in index.html.
 
 ### Sequence
 
@@ -164,8 +165,33 @@ available under **Dagens tre / Today’s three**. All app code remains in index.
   support and explanations for a facilitated fictional rehearsal.
 - The user explicitly requested new prototype functionality; event feature-freeze
   instructions are not treated as a bar to this separate local experiment.
-- Proposed as a draft PR for review and local testing. Publishing the artifact,
-  merging to main and deploying the Worker are separate steps. A merge to main can
-  update the hosted HTML; the sequence-aware Worker must be deployed before enabling
-  hosted AI for this variant.
+- PR #4 was merged with Oppgave / Task retained as the start screen. HTML and Worker
+  deployment remain separate. The follow-up below makes an older Worker safe to use
+  with the new HTML by leaving the lab in scripted mode until support is confirmed.
+
 - **v2.10** (13:25): press-to-talk on by default (Morten's decision; can be turned off under Lyd, with a note that audio goes to Google). Endless tasks: tolerant parsing of Claude's reply and a visible technical reason if it still fails. Demo recorder `demo/record_demo.py`.
+
+### Integration follow-up after PR #4
+
+- The lab stays optional, without points or teacher assessment. Its parent card is
+  shown only once started, with its own dinner question. The normal week card and
+  teacher view explicitly describe their scope (Task-tab activity and the first
+  three main tasks respectively). Lab use is not counted as unaided main-task work.
+- `/api/health` advertises `capabilities.fractionSequence: 1`. The lab sends a hosted
+  AI request only after that exact capability is confirmed and displays a reply only
+  if it also carries `sequenceVersion: 1`. Old/mismatched Workers fall back to visible
+  practice mode; original tasks may still use the old backend. Artifact sampling
+  remains independent. Capability discovery updates the label without resetting input.
+- Editing either equivalent numerator immediately clears its previous feedback.
+  Both task flows share bounded rational-answer checking, accepting e.g. 22/24 for
+  11/12 without changing non-fraction answer aliases.
+- New conversation replies scroll into view; other model changes preserve the reading
+  position. Responses arriving on another tab do not take focus. Progression remains
+  the learner's explicit choice, not an automatic judgement of their explanation.
+- The explicit read-question action works independently of automatic read-aloud in
+  the Task tab. It uses matching on-device voices only and reports missing voices or
+  speech errors in the lab. The main branch's press-to-talk setting and controls are unchanged.
+- Regression tests live in `tests/` (see `tests/README.md`). They include old/new Worker
+  contracts, both task flows, parent/teacher scope, speech mocks, mobile/theme/language
+  variants, and delayed responses. They do not establish learning effects or live AI
+  quality. Merge and deployment of this follow-up are separate from local verification.
