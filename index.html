@@ -218,6 +218,16 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
 .settings-pop select{padding:6px;border-radius:10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);font-size:.85rem}
 .bottomnav{display:none}
 
+/* Nytt tema */
+.steps .new-topic{margin-left:8px;border:2px dashed var(--violet);background:transparent;color:var(--violet);font-weight:700;font-size:.8rem;padding:4px 10px;border-radius:999px;cursor:pointer;white-space:nowrap}
+.steps{flex-wrap:wrap}
+.topic{display:flex;flex-direction:column;gap:10px;background:var(--violet-soft);border-radius:18px;padding:14px}
+.topic-row{display:flex;gap:8px;flex-wrap:wrap}
+.topic input{flex:1;min-width:0;font-size:1.05rem;padding:10px 14px;border:3px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink)}
+.topic input:focus{border-color:var(--violet)}
+.topic .chips button{background:var(--card)}
+.task .gen{display:inline-block;font-family:var(--f-body);font-size:.7rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--mint-soft);color:var(--mint-dk);padding:2px 8px;border-radius:999px;vertical-align:middle;margin-left:6px}
+
 /* Mobil */
 @media (max-width:700px){
   body{padding-block:10px calc(92px + env(safe-area-inset-bottom,0px))}
@@ -325,6 +335,15 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
     <section class="grid">
       <div class="panel" id="task-panel">
         <div class="steps" id="progress"></div>
+        <form class="topic" id="topic-form" hidden>
+          <p class="eyebrow" data-i18n="topicTitle">Øv på hva du vil</p>
+          <div class="topic-row">
+            <input id="topic" autocomplete="off" maxlength="80" data-i18n-ph="topicPh" data-i18n-aria="topicPh" placeholder="Hva vil du øve på?" aria-label="Hva vil du øve på?">
+            <button class="btn" type="submit" id="make-task" data-i18n="makeTask">Lag oppgave</button>
+          </div>
+          <div class="chips" id="topic-chips"></div>
+          <p class="note" id="topic-note" hidden></p>
+        </form>
         <p class="task" id="task-text"></p>
         <form class="answer" id="answer-form">
           <input id="answer" autocomplete="off" data-i18n-ph="yourAnswer" data-i18n-aria="yourAnswer" placeholder="Ditt svar" aria-label="Ditt svar">
@@ -447,6 +466,13 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
 // ---------- Språk: norsk bokmål (standard) og engelsk ----------
 const STR = {
   nb:{
+    topicTitle:"Øv på hva du vil", newTopic:"+ Nytt tema", topicPh:"Hva vil du øve på? F.eks. «areal av sirkel»", makeTask:"Lag oppgave",
+    topicPresets:["Areal av sirkel","Sannsynlighet","Negative tall","Brøk ganger brøk"],
+    making:"Makker lager en ny oppgave til deg …", madeTask:t=>`Ny oppgave om ${t}! Prøv selv først, så hjelper jeg om du står fast.`,
+    bankNote:"Øvingsmodus: du fikk en ferdig ekstraoppgave. Med ekte KI lages oppgaven fra temaet ditt.",
+    bankEmpty:"Alle ekstraoppgavene er brukt. Med ekte KI kan du øve på hva du vil.",
+    genFail:"Fikk ikke laget en oppgave. Prøv et annet tema, eller prøv igjen.", genBadge:"Laget for deg",
+    allDoneMore:"Alle tre ferdig! Vil du øve på noe eget? Skriv et tema over.",
     sound:"Lyd", holdToTalk:"Hold inne for å snakke", speechLbl:"Tale",
     voiceWarn:"Tale er av som standard. Slår du den på, sendes lyden til Google for å bli gjort om til tekst. Makkers opplesning skjer bare på enheten.",
     micAria:"Hold for å snakke til Makker", release:"Slipp for å sende",
@@ -518,6 +544,13 @@ const STR = {
     defaultStarter:"Ida forklarte gjennomsnitt til Makker på onsdag. Spør henne hva som er gjennomsnittlig leggetid i familien deres."
   },
   en:{
+    topicTitle:"Practise anything", newTopic:"+ New topic", topicPh:"What do you want to practise? E.g. “area of a circle”", makeTask:"Make task",
+    topicPresets:["Area of a circle","Probability","Negative numbers","Multiplying fractions"],
+    making:"Makker is making a new task for you …", madeTask:t=>`New task on ${t}! Try it yourself first, and I'll help if you get stuck.`,
+    bankNote:"Practice mode: you got a ready-made extra task. With real AI, the task is made from your topic.",
+    bankEmpty:"All the extra tasks are used. With real AI you can practise anything.",
+    genFail:"Couldn't make a task. Try another topic, or try again.", genBadge:"Made for you",
+    allDoneMore:"All three done! Want to practise something of your own? Type a topic above.",
     sound:"Sound", holdToTalk:"Hold to talk", speechLbl:"Speech",
     voiceWarn:"Voice is off by default. If you turn it on, the audio is sent to Google to be turned into text. Makker's read-aloud happens only on the device.",
     micAria:"Hold to talk to Makker", release:"Release to send",
@@ -882,7 +915,9 @@ function renderTaskText(){
   const p = $("progress"); p.innerHTML="";
   TASKS.forEach((_,k)=>{ const b=el("i",k<S.i?"done":(k===S.i?"now":""),String(k+1)); p.append(b); });
   p.append(el("span",null,t.topic));
+  const nt = el("button","new-topic",tr("newTopic")); nt.type="button"; nt.onclick = () => toggleTopic(); p.append(nt);
   $("task-text").innerHTML = t.html;
+  if(TASKS[S.i].gen){ $("task-text").append(el("span","gen",tr("genBadge"))); }
 }
 function greet(){ makker(tr(S.i===0 ? "greetFirst" : "greetNext"), ""); }
 function renderTask(){
@@ -996,7 +1031,7 @@ async function sendExplain(){
     if(S.tries===1) unlock("first");
     $("next").hidden = false;
     renderNext();
-    if(S.i === TASKS.length-1){ unlock("all"); setTimeout(()=>toast(tr("allDone")), 1800); }
+    if(S.i === 2){ unlock("all"); setTimeout(()=>{ toast(tr("allDoneMore")); toggleTopic(true); }, 1800); }
   }
   $("send").disabled = false;
 }
@@ -1013,7 +1048,7 @@ async function hintReply(txt){
   let reply = null;
   if(backend && !sampleFn){
     const thinking = el("div","msg m thinking",tr("thinking")); $("chat").append(thinking); scrollChat();
-    try{ const r = await callBackend({mode:"hint", task:S.i, hint:S.hint, history:S.history, lang}); reply = r && r.reply ? String(r.reply) : null; }catch(e){}
+    try{ const r = await callBackend({mode:"hint", ...backendTask(), hint:S.hint, history:S.history, lang}); reply = r && r.reply ? String(r.reply) : null; }catch(e){}
     thinking.remove();
   } else if(sampleFn){
     const thinking = el("div","msg m thinking",tr("thinking")); $("chat").append(thinking); scrollChat();
@@ -1084,7 +1119,7 @@ async function callBackend(body){
 
 async function askClaude(t){
   if(!sampleFn && backend){
-    const r = await callBackend({mode:"teach", task:S.i, history:S.history, lang:LANG});
+    const r = await callBackend({mode:"teach", ...backendTask(), history:S.history, lang:LANG});
     if(!r || typeof r.reply!=="string") return null;
     return {reply:r.reply, understood:!!r.understood, summary:String(r.summary||"")};
   }
@@ -1117,6 +1152,147 @@ document.addEventListener("keydown", e => {
   if(e.key !== "Escape") return;
   document.querySelectorAll("details.settings[open]").forEach(d => { d.open = false; d.querySelector("summary").focus(); });
 });
+
+
+// ---------- Uendelige oppgaver: Ida velger tema, KI lager oppgaven ----------
+// Ferdige ekstraoppgaver når det ikke finnes ekte KI (Øvingsmodus)
+const BANK = [
+  { answers:["1/2","0.5","50%","3/6"], keys:["terning","sannsynlig","partall","dice","probab","even"],
+    nb:{ topic:"Sannsynlighet", plain:"Du kaster en vanlig terning. Hva er sannsynligheten for å få et partall?", math:"partall",
+      hints:[["Spørsmål","Hvor mange sider har terningen, og hvilke av dem er partall?"],["Tips","Sannsynlighet = gunstige utfall delt på mulige utfall. Hvor mange gunstige er det?"],["Eksempel","Sannsynligheten for å få en sekser er 1/6, fordi 1 av 6 sider er en sekser."]],
+      wrong:"Det er seks sider og partall er bare ett tall, så det blir 1/6?", keys:["tre","3","av seks","2, 4","halv","gunstige","delt på"],
+      follow:"Men hvor mange av sidene er egentlig partall?", aha:"Aha! 2, 4 og 6 er partall, altså 3 av 6 sider. Det blir 3/6 = 1/2!",
+      sum:"Hvordan man finner sannsynlighet som gunstige delt på mulige utfall", starter:"Ida forklarte sannsynlighet med en terning. Spill et terningspill og la henne regne ut sjansene." },
+    en:{ topic:"Probability", plain:"You roll an ordinary die. What is the probability of getting an even number?", math:"even number",
+      hints:[["Question","How many sides does the die have, and which of them are even?"],["Tip","Probability = favourable outcomes divided by possible outcomes. How many are favourable?"],["Example","The probability of rolling a six is 1/6, because 1 of 6 sides is a six."]],
+      wrong:"There are six sides and even is just one kind of number, so it's 1/6?", keys:["three","3","of six","2, 4","half","favourable","divided"],
+      follow:"But how many of the sides are actually even?", aha:"Aha! 2, 4 and 6 are even, so 3 of 6 sides. That's 3/6 = 1/2!",
+      sum:"How to find probability as favourable over possible outcomes", starter:"Ida explained probability with a die. Play a dice game and let her work out the chances." } },
+  { answers:["28","28cm2","28cm²","28kvadratcentimeter"], keys:["areal","rektangel","area","rectangle"],
+    nb:{ topic:"Areal", plain:"Et rektangel er 7 cm langt og 4 cm bredt. Hva er arealet?", math:"7 cm × 4 cm",
+      hints:[["Spørsmål","Hva måler areal: kanten rundt, eller flaten inni?"],["Tips","Tenk deg rader med små ruter på 1 cm × 1 cm. Hvor mange rader, og hvor mange i hver?"],["Eksempel","Et rektangel på 5 cm × 3 cm har 3 rader med 5 ruter: 15 cm²."]],
+      wrong:"Jeg la sammen alle sidene: 7 + 4 + 7 + 4 = 22. Så arealet er 22?", keys:["ganger","gange","flate","ruter","inni","omkrets","rader"],
+      follow:"Men er ikke areal det samme som å gå rundt kanten?", aha:"Skjønner! Det jeg regnet var omkretsen. Arealet er flaten: 7 · 4 = 28 cm²!",
+      sum:"Forskjellen på areal og omkrets", starter:"Ida forklarte forskjellen på areal og omkrets. Mål et bord sammen og regn ut begge." },
+    en:{ topic:"Area", plain:"A rectangle is 7 cm long and 4 cm wide. What is its area?", math:"7 cm × 4 cm",
+      hints:[["Question","What does area measure: the edge around, or the surface inside?"],["Tip","Imagine rows of small 1 cm × 1 cm squares. How many rows, and how many in each?"],["Example","A 5 cm × 3 cm rectangle has 3 rows of 5 squares: 15 cm²."]],
+      wrong:"I added all the sides: 7 + 4 + 7 + 4 = 22. So the area is 22?", keys:["times","multiply","surface","squares","inside","perimeter","rows"],
+      follow:"But isn't area the same as going round the edge?", aha:"Got it! What I worked out was the perimeter. The area is the surface: 7 × 4 = 28 cm²!",
+      sum:"The difference between area and perimeter", starter:"Ida explained the difference between area and perimeter. Measure a table together and work out both." } },
+  { answers:["5","+5"], keys:["negativ","minus","negative","temperatur","temperature"],
+    nb:{ topic:"Negative tall", plain:"Det er −3 grader ute. Temperaturen stiger 8 grader. Hvor varmt er det nå?", math:"−3 + 8",
+      hints:[["Spørsmål","Hvis du står på −3 på en tallinje, hvilken vei går du når temperaturen stiger?"],["Tips","Gå først opp til 0. Hvor mange grader har du igjen av de 8 etterpå?"],["Eksempel","−2 + 5: tre steg opp til 0, så to steg til. Svaret er 3."]],
+      wrong:"Minus og pluss … 3 + 8 = 11, så det er −11 grader?", keys:["tallinje","null","0","opp","høyre","steg","igjen"],
+      follow:"Men blir det ikke kaldere når det står minus?", aha:"Åh! Fra −3 går jeg 3 steg opp til 0, og har 5 igjen. Det er 5 grader!",
+      sum:"Hvordan man regner med negative tall på en tallinje", starter:"Ida forklarte negative tall med et termometer. Sjekk temperaturen ute i morgen og la henne regne ut endringen." },
+    en:{ topic:"Negative numbers", plain:"It is −3 degrees outside. The temperature rises by 8 degrees. How warm is it now?", math:"−3 + 8",
+      hints:[["Question","If you stand at −3 on a number line, which way do you go when the temperature rises?"],["Tip","First go up to 0. How many of the 8 degrees do you have left after that?"],["Example","−2 + 5: three steps up to 0, then two more. The answer is 3."]],
+      wrong:"Minus and plus … 3 + 8 = 11, so it's −11 degrees?", keys:["number line","zero","0","up","right","steps","left over"],
+      follow:"But doesn't the minus mean it gets colder?", aha:"Oh! From −3 I go 3 steps up to 0, and have 5 left. It's 5 degrees!",
+      sum:"How to calculate with negative numbers on a number line", starter:"Ida explained negative numbers with a thermometer. Check the temperature outside tomorrow and let her work out the change." } }
+];
+let bankUsed = 0;
+
+function escapeHtml(x){ return String(x).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function taskHtml(plain, math){
+  const safe = escapeHtml(plain);
+  if(math){ const m = escapeHtml(math); const i = safe.indexOf(m); if(i>=0) return safe.slice(0,i) + '<span class="math">' + m + '</span>' + safe.slice(i+m.length); }
+  return safe;
+}
+function finishTask(lang, x, answers, gen){
+  x.html = taskHtml(x.plain, x.math);
+  const block = {...x};
+  const t = {answers, gen, nb:block, en:block};   // generert innhold finnes på ett språk
+  return t;
+}
+// Sjekk at KI-svaret har riktig form før vi bruker det
+function validTask(o){
+  const str = (v,n) => typeof v==="string" && v.trim().length>0 && v.length<=n;
+  if(!o || !str(o.topic,40) || !str(o.plain,300) || !Array.isArray(o.answers) || !o.answers.length) return null;
+  if(!Array.isArray(o.hints) || o.hints.length!==3 || !o.hints.every(h=>str(h,300))) return null;
+  if(!str(o.wrong,300) || !str(o.aha,300)) return null;
+  const L = LANG==="en" ? ["Question","Tip","Example"] : ["Spørsmål","Tips","Eksempel"];
+  return {
+    answers: o.answers.slice(0,6).map(a=>String(a).slice(0,30)).filter(Boolean),
+    block: { topic:o.topic.trim(), plain:o.plain.trim(), math: typeof o.math==="string" ? o.math.slice(0,60) : "",
+      hints: o.hints.map((h,k)=>[L[k], h.trim()]), wrong:o.wrong.trim(),
+      keys: Array.isArray(o.keys) ? o.keys.slice(0,12).map(k=>String(k).toLowerCase().slice(0,30)) : [],
+      follow: str(o.follow,300) ? o.follow.trim() : (LANG==="en" ? "Hmm, why is that?" : "Hmm, hvorfor det?"),
+      aha:o.aha.trim(), sum: str(o.sum,200) ? o.sum.trim() : o.topic, starter: str(o.starter,300) ? o.starter.trim() : tr("defaultStarter") }
+  };
+}
+function genPrompt(topic){
+  const L = tr("aiLang");
+  return `Du lager én ny matteoppgave til «Tenkemakker», en læringsapp for Ida (13 år, 8. trinn i Norge).
+Temaet Ida ønsker: «${topic}». Hvis temaet ikke er matematikk, er uklart eller ikke passer for en 13-åring, velg et nærliggende matteemne for 8. trinn i stedet.
+Skriv alt på ${L}. Oppgaven skal ha ett entydig, kort svar (et tall, en brøk eller f.eks. "x=4"), være løsbar i hodet eller på papir på et par minutter, og bruke dagligdagse, oppdiktede situasjoner. Ingen ekte personer.
+Svar KUN med JSON i dette formatet:
+{"topic":"kort emnenavn (1-3 ord)",
+ "plain":"oppgaveteksten",
+ "math":"den delen av oppgaveteksten som skal utheves (kopier ordrett fra plain)",
+ "answers":["riktig svar","tillatte varianter, f.eks. med enhet eller som desimaltall"],
+ "hints":["et spørsmål som får Ida til å tenke, uten å avsløre noe","et tips som peker mot metoden","et gjennomregnet eksempel på en LIGNENDE oppgave med andre tall, aldri denne"],
+ "wrong":"en typisk misforståelse sagt av Makker i første person, som ender i et galt svar",
+ "keys":["6-10 korte nøkkelord som en elev ville brukt når hun forklarer kjerneideen riktig"],
+ "follow":"et oppfølgingsspørsmål fra Makker hvis forklaringen er uklar",
+ "aha":"Makkers aha-replikk når han forstår, med riktig utregning",
+ "sum":"én nøytral linje til forelderen om hva Ida forklarte",
+ "starter":"et konkret spørsmål foreldrene kan stille ved middagen"}
+Ingen hint får inneholde svaret på denne oppgaven.`;
+}
+async function generateTask(topic){
+  if(sampleFn){
+    const o = await sampleFn.json(genPrompt(topic), {modelTier:"quick", cache:false});
+    return validTask(o);
+  }
+  if(backend){
+    const o = await (await fetch("/api/task", {method:"POST", headers:{"content-type":"application/json"}, credentials:"same-origin", body:JSON.stringify({topic, lang:LANG})})).json();
+    return validTask(o);
+  }
+  return null;
+}
+function backendTask(){
+  if(!TASKS[S.i].gen) return {task:S.i};
+  const t = task();
+  return {task:-1, custom:{plain:t.plain, answer:t.answers[0], hints:t.hints.map(h=>h[1]), wrong:t.wrong, aha:t.aha}};
+}
+function topicNote(t){ $("topic-note").hidden = !t; $("topic-note").textContent = t||""; }
+function renderTopicChips(){
+  const C=$("topic-chips"); C.innerHTML="";
+  tr("topicPresets").forEach(p=>{ const b=el("button",null,p); b.type="button"; b.onclick=()=>{ $("topic").value=p; makeTopicTask(); }; C.append(b); });
+}
+function toggleTopic(force){
+  const f=$("topic-form"); f.hidden = force===undefined ? !f.hidden : !force;
+  if(!f.hidden){ renderTopicChips(); topicNote(""); $("topic").focus(); }
+}
+async function makeTopicTask(){
+  const topic = $("topic").value.trim().slice(0,80);
+  if(!topic) { $("topic").focus(); return; }
+  stopMic();
+  $("make-task").disabled = true; topicNote(tr("making")); face("confused");
+  let made = null, fromBank = false;
+  if(sampleFn || backend){
+    try{ const v = await generateTask(topic); if(v) made = finishTask(LANG, v.block, v.answers, true); }catch(e){ if(e && (e.code==="not_granted"||e.code==="sampling_disabled")) setLive(false); }
+    if(!made){ $("make-task").disabled = false; topicNote(tr("genFail")); face(""); return; }
+  } else {
+    if(bankUsed >= BANK.length){ $("make-task").disabled = false; topicNote(tr("bankEmpty")); face(""); return; }
+    const low = topic.toLowerCase();
+    let k = BANK.findIndex((b,i)=>!b.used && b.keys.some(w=>low.includes(w)));
+    if(k<0) k = BANK.findIndex(b=>!b.used);
+    const b = BANK[k]; b.used = true; bankUsed++;
+    made = {answers:b.answers, gen:true, nb:{...b.nb, html:taskHtml(b.nb.plain,b.nb.math)}, en:{...b.en, html:taskHtml(b.en.plain,b.en.math)}};
+    fromBank = true;
+  }
+  TASKS.push(made);
+  S.i = TASKS.length-1; S.hint = 0; S.solved = false;
+  $("make-task").disabled = false; $("topic").value = ""; toggleTopic(false);
+  renderTask();
+  $("chat").innerHTML = "";
+  makker(tr("madeTask", task().topic), "happy");
+  if(fromBank) sys(tr("bankNote"));
+  if(isMobile()) $("task-text").scrollIntoView({block:"center", behavior:"smooth"});
+}
+$("topic-form").addEventListener("submit", e => { e.preventDefault(); makeTopicTask(); });
 
 // ---------- Tale inn (Google Chrome / Edge når filen åpnes lokalt) ----------
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -1248,6 +1424,7 @@ function applyLang(regreet){
   document.querySelectorAll("[data-i18n-aria]").forEach(e=>{ e.setAttribute("aria-label", tr(e.dataset.i18nAria)); });
   document.querySelectorAll("[data-i18n-title]").forEach(e=>{ e.title = tr(e.dataset.i18nTitle); });
   renderSrLangs(); renderMode();
+  if(!$("topic-form").hidden) renderTopicChips();
   renderHUD(); renderBadges(); renderBoard(false);
   renderTaskText(); renderLadder(); renderFeedback(); renderPlaceholder(); renderNext();
   $("mic-label").textContent = tr(listening ? "stop" : "talk"); micNote("");

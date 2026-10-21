@@ -47,6 +47,9 @@ export default {
     if (url.pathname === "/api/makker" && req.method === "POST") {
       return makker(req, env);
     }
+    if (url.pathname === "/api/task" && req.method === "POST") {
+      return newTask(req, env);
+    }
     if (url.pathname === "/" || url.pathname === "/index.html") {
       return page(ctx);
     }
@@ -77,7 +80,13 @@ async function makker(req, env) {
   if (!env.ANTHROPIC_API_KEY) return json({ error: "no_key" }, 503);
   let body;
   try { body = await req.json(); } catch { return json({ error: "bad_json" }, 400); }
-  const t = TASKS[Number(body.task)];
+  // Built-in task by index, or a generated task the page sends back (capped, still Makker's fixed framing)
+  let t = TASKS[Number(body.task)];
+  if (!t && body.custom && typeof body.custom === "object") {
+    const c = body.custom, cap = (v, n) => String(v || "").slice(0, n);
+    const hints = Array.isArray(c.hints) ? c.hints.slice(0, 3).map(h => cap(h, 300)) : [];
+    if (hints.length === 3 && c.plain && c.answer) t = { plain: cap(c.plain, 300), answer: cap(c.answer, 30), hints, wrong: cap(c.wrong, 300), aha: cap(c.aha, 300) };
+  }
   if (!t) return json({ error: "bad_task" }, 400);
   const mode = body.mode === "teach" ? "teach" : "hint";
   const L = body.lang === "en" ? "engelsk (English)" : "norsk bokmål";
@@ -132,6 +141,32 @@ Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
   try { out = m ? JSON.parse(m[0]) : null; } catch { out = null; }
   if (!out || typeof out.reply !== "string") out = { reply: text.trim().slice(0, 400), understood: false, summary: "" };
   return json({ reply: out.reply, understood: !!out.understood, summary: String(out.summary || "") });
+}
+
+// ---- New task from a topic Ida chooses ----
+async function newTask(req, env) {
+  if (!env.ANTHROPIC_API_KEY) return json({ error: "no_key" }, 503);
+  let body;
+  try { body = await req.json(); } catch { return json({ error: "bad_json" }, 400); }
+  const topic = String(body.topic || "").replace(/[\u0000-\u001f«»"]/g, " ").trim().slice(0, 80);
+  if (!topic) return json({ error: "no_topic" }, 400);
+  const L = body.lang === "en" ? "engelsk (English)" : "norsk bokmål";
+  const prompt = `Du lager én ny matteoppgave til «Tenkemakker», en læringsapp for Ida (13 år, 8. trinn i Norge).
+Temaet Ida ønsker: «${topic}». Hvis temaet ikke er matematikk, er uklart eller ikke passer for en 13-åring, velg et nærliggende matteemne for 8. trinn i stedet.
+Skriv alt på ${L}. Oppgaven skal ha ett entydig, kort svar (et tall, en brøk eller f.eks. "x=4"), være løsbar i hodet eller på papir på et par minutter, og bruke dagligdagse, oppdiktede situasjoner. Ingen ekte personer.
+Svar KUN med JSON i dette formatet:
+{"topic":"kort emnenavn (1-3 ord)","plain":"oppgaveteksten","math":"den delen av oppgaveteksten som skal utheves (kopier ordrett fra plain)","answers":["riktig svar","tillatte varianter"],"hints":["et spørsmål som får Ida til å tenke, uten å avsløre noe","et tips som peker mot metoden","et gjennomregnet eksempel på en LIGNENDE oppgave med andre tall, aldri denne"],"wrong":"en typisk misforståelse sagt av Makker i første person, som ender i et galt svar","keys":["6-10 korte nøkkelord for kjerneideen"],"follow":"et oppfølgingsspørsmål fra Makker","aha":"Makkers aha-replikk med riktig utregning","sum":"én nøytral linje til forelderen om hva Ida forklarte","starter":"et konkret spørsmål foreldrene kan stille ved middagen"}
+Ingen hint får inneholde svaret på denne oppgaven.`;
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+    body: JSON.stringify({ model: env.MODEL || "claude-haiku-5-5", max_tokens: 900, messages: [{ role: "user", content: prompt }] })
+  });
+  if (!r.ok) return json({ error: "upstream", status: r.status }, 502);
+  const data = await r.json();
+  const text = (data.content || []).filter(c => c.type === "text").map(c => c.text).join("");
+  const m = text.match(/\{[\s\S]*\}/);
+  try { return json(JSON.parse(m[0])); } catch { return json({ error: "bad_output" }, 502); }
 }
 
 // ---- Cloudflare Access JWT verification ----
