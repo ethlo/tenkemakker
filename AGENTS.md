@@ -32,7 +32,7 @@ Open decisions are tracked in a live decision board (Claude artifact, linked in 
    - *Local file*: scripted replies using keyword lists per task. Shows "Øvingsmodus".
    Every AI feature needs a scripted fallback.
 6. **Voice** uses the browser Web Speech API only (no keys, no installs):
-   - Speech-to-text: OFF by default (privacy); opt-in toggle under "Lyd" / "Sound". Press-and-hold the mic, release to send. `SpeechRecognition`, language selectable (`nb-NO` / `no-NO` / `nn-NO`, or `en-GB` / `en-US` in English mode). Works in Google Chrome/Edge on a normal web page or local file; blocked inside the artifact frame — degrade to typing with a clear message.
+   - Speech-to-text: ON by default since 13:20 (Morten's call for the demo; was opt-in); can be turned off under "Lyd" / "Sound", with a plain note that audio goes to Google. Press-and-hold the mic, release to send. `SpeechRecognition`, language selectable (`nb-NO` / `no-NO` / `nn-NO`, or `en-GB` / `en-US` in English mode). Works in Google Chrome/Edge on a normal web page or local file; blocked inside the artifact frame — degrade to typing with a clear message.
    - Text-to-speech: `speechSynthesis` with an on-device (`localService`) voice matching the current language only. If none is installed, stay silent and say so once (never read Norwegian with an English voice, or the reverse).
 7. **Points reward thinking, not speed.** See the TP table in `DESIGN.md`. Wrong answers never cost points.
 8. **Ask before** installing anything, adding API keys, or using accounts.

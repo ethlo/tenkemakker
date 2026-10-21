@@ -168,3 +168,4 @@ available under **Dagens tre / Today’s three**. All app code remains in index.
   merging to main and deploying the Worker are separate steps. A merge to main can
   update the hosted HTML; the sequence-aware Worker must be deployed before enabling
   hosted AI for this variant.
+- **v2.10** (13:25): press-to-talk on by default (Morten's decision; can be turned off under Lyd, with a note that audio goes to Google). Endless tasks: tolerant parsing of Claude's reply and a visible technical reason if it still fails. Demo recorder `demo/record_demo.py`.

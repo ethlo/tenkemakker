@@ -472,7 +472,7 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
             <summary data-i18n="sound">Lyd</summary>
             <div class="settings-pop">
               <label class="toggle"><input type="checkbox" id="speak-toggle" checked> <span data-i18n="readAloud">Makker leser høyt</span></label>
-              <label class="toggle"><input type="checkbox" id="voice-toggle"> <span data-i18n="holdToTalk">Hold inne for å snakke</span></label>
+              <label class="toggle"><input type="checkbox" id="voice-toggle" checked> <span data-i18n="holdToTalk">Hold inne for å snakke</span></label>
               <p class="note" style="white-space:normal;max-width:230px" data-i18n="voiceWarn">Tale er av som standard. Slår du den på, sendes lyden til Google for å bli gjort om til tekst. Makkers opplesning skjer bare på enheten.</p>
               <label class="toggle"><span data-i18n="speechLbl">Tale</span>
                 <select id="sr-lang" data-i18n-aria="srAria" aria-label="Talespråk"></select>
@@ -484,7 +484,7 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
         <div class="teach" id="teach" hidden>
           <div class="chips" id="chips"></div>
           <div class="composer">
-            <button class="mic" id="mic" type="button" hidden data-i18n-aria="micAria" aria-label="Hold for å snakke til Makker"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M8.5 21h7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span id="mic-label" class="sr">Hold for å snakke</span></button>
+            <button class="mic" id="mic" type="button" data-i18n-aria="micAria" aria-label="Hold for å snakke til Makker"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M6 11a6 6 0 0 0 12 0M12 17v4M8.5 21h7" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span id="mic-label" class="sr">Hold for å snakke</span></button>
             <textarea id="explain" rows="1" placeholder="Skriv svaret ditt …" data-i18n-aria="replyAria" aria-label="Ditt svar til Makker"></textarea>
             <button class="send" id="send" type="button" data-i18n-aria="send" aria-label="Send til Makker"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 12h13M12 5l7 7-7 7" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
           </div>
@@ -636,7 +636,7 @@ const STR = {
     genFail:"Fikk ikke laget en oppgave. Prøv et annet tema, eller prøv igjen.", genBadge:"Laget for deg",
     allDoneMore:"Alle tre ferdig! Vil du øve på noe eget? Skriv et tema over.",
     sound:"Lyd", holdToTalk:"Hold inne for å snakke", speechLbl:"Tale",
-    voiceWarn:"Tale er av som standard. Slår du den på, sendes lyden til Google for å bli gjort om til tekst. Makkers opplesning skjer bare på enheten.",
+    voiceWarn:"Hold inne mikrofonen for å snakke. Lyden sendes til Google for å bli gjort om til tekst. Slå av her for å bare skrive. Makkers opplesning skjer bare på enheten.",
     micAria:"Hold for å snakke til Makker", release:"Slipp for å sende",
     hintPhVoice:"Snakk eller skriv svaret ditt …", teachPhVoice:"Forklar med egne ord, eller hold inne mikrofonen …",
     holdTip:"Hold knappen inne mens du snakker.", noSpeech:"Hørte ingenting. Hold inne og snakk litt høyere.",
@@ -742,7 +742,7 @@ const STR = {
     genFail:"Couldn't make a task. Try another topic, or try again.", genBadge:"Made for you",
     allDoneMore:"All three done! Want to practise something of your own? Type a topic above.",
     sound:"Sound", holdToTalk:"Hold to talk", speechLbl:"Speech",
-    voiceWarn:"Voice is off by default. If you turn it on, the audio is sent to Google to be turned into text. Makker's read-aloud happens only on the device.",
+    voiceWarn:"Hold the mic to talk. The audio is sent to Google to be turned into text. Turn it off here to type only. Makker's read-aloud happens only on the device.",
     micAria:"Hold to talk to Makker", release:"Release to send",
     hintPhVoice:"Talk or type your answer …", teachPhVoice:"Explain in your own words, or hold the mic …",
     holdTip:"Hold the button down while you talk.", noSpeech:"Didn't hear anything. Hold and speak a little louder.",
@@ -1433,19 +1433,35 @@ function finishTask(lang, x, answers, gen){
   return t;
 }
 // Sjekk at KI-svaret har riktig form før vi bruker det
-function validTask(o){
-  const str = (v,n) => typeof v==="string" && v.trim().length>0 && v.length<=n;
-  if(!o || !str(o.topic,40) || !str(o.plain,300) || !Array.isArray(o.answers) || !o.answers.length) return null;
-  if(!Array.isArray(o.hints) || o.hints.length!==3 || !o.hints.every(h=>str(h,300))) return null;
-  if(!str(o.wrong,300) || !str(o.aha,300)) return null;
-  const L = LANG==="en" ? ["Question","Tip","Example"] : ["Spørsmål","Tips","Eksempel"];
+// Tåler ulike former på KI-svaret: forkorter lange felt, godtar hint som tekst eller objekter, fyller inn det som mangler
+let lastGenErr = "";
+function validTask(o, topicIn){
+  if(o && typeof o==="object" && !Array.isArray(o)){ for(const k of ["task","oppgave","data","result"]) if(o[k] && typeof o[k]==="object" && (o[k].plain||o[k].hints)) { o = o[k]; break; } }
+  if(!o || typeof o!=="object"){ lastGenErr = "ingen JSON"; return null; }
+  const txt = v => { if(v==null) return ""; if(typeof v==="string") return v.trim(); if(typeof v==="number") return String(v);
+    if(Array.isArray(v)) return txt(v[v.length-1]); if(typeof v==="object") return txt(v.text||v.hint||v.content||v.value||Object.values(v).find(x=>typeof x==="string")); return ""; };
+  const plain = txt(o.plain||o.question||o.task||o.oppgave||o.text);
+  let answers = o.answers ?? o.answer ?? o.svar;
+  answers = (Array.isArray(answers) ? answers : [answers]).map(a=>txt(a).slice(0,30)).filter(Boolean);
+  let hints = Array.isArray(o.hints) ? o.hints.map(txt).filter(Boolean) : [];
+  if(!plain){ lastGenErr = "mangler oppgavetekst"; return null; }
+  if(!answers.length){ lastGenErr = "mangler svar"; return null; }
+  const en = LANG==="en";
+  const fill = en ? ["What do you know, and what are you looking for?","Which method fits this kind of task? Try the first step.","Try a similar task with smaller numbers first."]
+                  : ["Hva vet du, og hva skal du finne?","Hvilken metode passer til denne typen oppgave? Prøv første steg.","Prøv en lignende oppgave med mindre tall først."];
+  while(hints.length<3) hints.push(fill[hints.length]);
+  hints = hints.slice(0,3).map(h=>h.slice(0,400));
+  const L = en ? ["Question","Tip","Example"] : ["Spørsmål","Tips","Eksempel"];
+  const topic = (txt(o.topic) || topicIn || (en?"New task":"Ny oppgave")).slice(0,40);
+  const wrong = txt(o.wrong||o.misconception) || (en ? "Hmm, I'd just guess. Is that how it works?" : "Hmm, jeg gjetter bare. Er det sånn det funker?");
+  const aha = txt(o.aha) || (en ? "Aha! Now I get it. Thanks!" : "Aha! Nå skjønner jeg det. Takk!");
   return {
-    answers: o.answers.slice(0,6).map(a=>String(a).slice(0,30)).filter(Boolean),
-    block: { topic:o.topic.trim(), plain:o.plain.trim(), math: typeof o.math==="string" ? o.math.slice(0,60) : "",
-      hints: o.hints.map((h,k)=>[L[k], h.trim()]), wrong:o.wrong.trim(),
-      keys: Array.isArray(o.keys) ? o.keys.slice(0,12).map(k=>String(k).toLowerCase().slice(0,30)) : [],
-      follow: str(o.follow,300) ? o.follow.trim() : (LANG==="en" ? "Hmm, why is that?" : "Hmm, hvorfor det?"),
-      aha:o.aha.trim(), sum: str(o.sum,200) ? o.sum.trim() : o.topic, starter: str(o.starter,300) ? o.starter.trim() : tr("defaultStarter") }
+    answers: answers.slice(0,6),
+    block: { topic, plain:plain.slice(0,500), math: txt(o.math).slice(0,80),
+      hints: hints.map((h,k)=>[L[k], h]), wrong: wrong.slice(0,400),
+      keys: (Array.isArray(o.keys) ? o.keys : []).slice(0,12).map(k=>txt(k).toLowerCase().slice(0,30)).filter(Boolean),
+      follow: txt(o.follow).slice(0,300) || (en ? "Hmm, why is that?" : "Hmm, hvorfor det?"),
+      aha: aha.slice(0,400), sum: txt(o.sum).slice(0,200) || topic, starter: txt(o.starter).slice(0,300) || tr("defaultStarter") }
   };
 }
 function genPrompt(topic){
@@ -1468,13 +1484,16 @@ Svar KUN med JSON i dette formatet:
 Ingen hint får inneholde svaret på denne oppgaven.`;
 }
 async function generateTask(topic){
+  lastGenErr = "";
   if(sampleFn){
     const o = await sampleFn.json(genPrompt(topic), {modelTier:"quick", cache:false});
-    return validTask(o);
+    return validTask(o, topic);
   }
   if(backend){
-    const o = await (await fetch("/api/task", {method:"POST", headers:{"content-type":"application/json"}, credentials:"same-origin", body:JSON.stringify({topic, lang:LANG})})).json();
-    return validTask(o);
+    const r = await fetch("/api/task", {method:"POST", headers:{"content-type":"application/json"}, credentials:"same-origin", body:JSON.stringify({topic, lang:LANG})});
+    let o = null; try{ o = await r.json(); }catch(e){}
+    if(!r.ok || (o && o.error)){ lastGenErr = "server " + r.status + (o && o.error ? " " + o.error : "") + (o && o.status ? " " + o.status : ""); return null; }
+    return validTask(o, topic);
   }
   return null;
 }
@@ -1499,8 +1518,8 @@ async function makeTopicTask(){
   $("make-task").disabled = true; topicNote(tr("making")); face("confused");
   let made = null, fromBank = false;
   if(sampleFn || backend){
-    try{ const v = await generateTask(topic); if(v) made = finishTask(LANG, v.block, v.answers, true); }catch(e){ if(e && (e.code==="not_granted"||e.code==="sampling_disabled")) setLive(false); }
-    if(!made){ $("make-task").disabled = false; topicNote(tr("genFail")); face(""); return; }
+    try{ const v = await generateTask(topic); if(v) made = finishTask(LANG, v.block, v.answers, true); }catch(e){ lastGenErr = (e && (e.code||e.message)) || String(e); if(e && (e.code==="not_granted"||e.code==="sampling_disabled")) setLive(false); }
+    if(!made){ $("make-task").disabled = false; topicNote(tr("genFail") + (lastGenErr ? " (" + lastGenErr + ")" : "")); face(""); console.warn("Tenkemakker: task generation failed:", lastGenErr); return; }
   } else {
     if(bankUsed >= BANK.length){ $("make-task").disabled = false; topicNote(tr("bankEmpty")); face(""); return; }
     const low = topic.toLowerCase();
