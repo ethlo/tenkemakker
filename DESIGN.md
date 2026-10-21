@@ -131,8 +131,9 @@ Browser ──▶ Cloudflare Access (email login, one-time code)
 ## Local fraction sequence prototype — 21 Oct 2026
 
 Requested as an experimental local extension after review of the Learning Ways material.
-Entry point: **Brøkverksted / Fraction lab**. The original three-task demo is still
-available under **Dagens tre / Today’s three**. All app code remains in index.html.
+The normal **Oppgave / Task** tab remains the start screen.
+**Brøkverksted / Fraction lab** is an optional experiment with separate activity records.
+All app code remains in index.html.
 
 ### Sequence
 
@@ -164,10 +165,10 @@ available under **Dagens tre / Today’s three**. All app code remains in index.
   support and explanations for a facilitated fictional rehearsal.
 - The user explicitly requested new prototype functionality; event feature-freeze
   instructions are not treated as a bar to this separate local experiment.
-- Proposed as a draft PR for review and local testing. Publishing the artifact,
-  merging to main and deploying the Worker are separate steps. A merge to main can
-  update the hosted HTML; the sequence-aware Worker must be deployed before enabling
-  hosted AI for this variant.
+- PR #4 was merged with Oppgave / Task retained as the start screen. HTML and Worker
+  deployment remain separate. The follow-up below makes an older Worker safe to use
+  with the new HTML by leaving the lab in scripted mode until support is confirmed.
+
 - **v2.10** (13:25): press-to-talk on by default (Morten's decision; can be turned off under Lyd, with a note that audio goes to Google). Endless tasks: tolerant parsing of Claude's reply and a visible technical reason if it still fails. Demo recorder `demo/record_demo.py`.
 - **v2.11** (13:35): conversation never gets stuck: an answer said or typed to Makker counts as an answer (also "11 delt på 12"); Makker accepts by the third explanation at the latest; teach prompt tolerates spoken, informal text.
 - **v2.12** (13:40): no empty Makker bubbles: the app falls back to a prepared reply if Claude's reply is empty; Worker gives Makker 1500 tokens (room for the model to think) and returns an error instead of an empty reply.
@@ -175,3 +176,80 @@ available under **Dagens tre / Today’s three**. All app code remains in index.
 - **v2.14** (13:48): 90-second pitch: `demo/SCRIPT.md` (8 timed beats, nb + en) and `demo/pitch.py`, which plays the beats with lower-third overlays, progress bar and timer and records an exactly 90-second video.
 - **v2.15** (14:20): `demo/voiceover.py` adds an ElevenLabs voice-over (one line per beat, on the beat) and instrumental music (ducked under the voice) to the pitch video. Runs on the presenter's machine with their own key.
 - **v2.16** (14:40): time-boxed public access: the Worker skips the login check until `PUBLIC_UNTIL` (ms timestamp binding). Opened 14:40–15:40 for the audience; Access policy set to bypass for that hour, then back to email login.
+
+### Integration follow-up after PR #4
+
+- The lab stays optional, without points or teacher assessment. Its parent card is
+  shown only once started, with its own dinner question. The normal week card and
+  teacher view explicitly describe their scope (Task-tab activity and the first
+  three main tasks respectively). Lab use is not counted as unaided main-task work.
+- `/api/health` advertises `capabilities.fractionSequence: 1`. The lab sends a hosted
+  AI request only after that exact capability is confirmed and displays a reply only
+  if it also carries `sequenceVersion: 1`. Old/mismatched Workers fall back to visible
+  practice mode; original tasks may still use the old backend. Artifact sampling
+  remains independent. Capability discovery updates the label without resetting input.
+- Editing either equivalent numerator immediately clears its previous feedback.
+  Both task flows share bounded rational-answer checking, accepting e.g. 22/24 for
+  11/12 without changing non-fraction answer aliases.
+- New conversation replies scroll into view; other model changes preserve the reading
+  position. Responses arriving on another tab do not take focus. Progression remains
+  the learner's explicit choice, not an automatic judgement of their explanation.
+- The explicit read-question action works independently of automatic read-aloud in
+  the Task tab. It uses matching on-device voices only and reports missing voices or
+  speech errors in the lab. The main branch's press-to-talk setting and controls are unchanged.
+- Regression tests live in `tests/` (see `tests/README.md`). They include old/new Worker
+  contracts, both task flows, parent/teacher scope, speech mocks, mobile/theme/language
+  variants, and delayed responses. They do not establish learning effects or live AI
+  quality. Merge and deployment of this follow-up are separate from local verification.
+
+### Connected fraction learning — implementation for review, 21 Oct 2026
+
+This update supersedes the fixed-twelfths sequence above. It is based on PR #5
+(head a0b1eeb, still open when implementation began), in an isolated worktree.
+The user approved a limited update to the optional fraction lab, with text,
+pointing and local read-aloud. Existing main-task, teacher and score behavior stays
+outside this experiment. No main-branch push or production publication is part of
+this review delivery; the agreed sequence requires a preview and facilitated pilot.
+
+- The single task list defines 2/3 + 1/4 and independent transfer 1/2 + 1/5.
+  Models start closed. The learner can request help at any point or continue with an
+  explicitly unresolved task. A written explanation is optional and never AI-gated.
+- Learners choose a common denominator from 2–24. All valid common multiples are
+  accepted, including 24 and 20; the original quantities and equal whole lengths
+  remain invariant. Invalid choices explain divisibility and restore original parts.
+  Each new applied partition clears numerator drafts, marks and old feedback.
+- Strips/number lines appear alongside the same fraction expression and equivalent
+  numerator inputs. Marking pieces or selecting a number line highlights the related
+  expression with an outline as well as color. Symbols-only remains available.
+- Every validly formatted answer attempt has an immutable snapshot of hints,
+  representations opened, denominator choices, markings and read-aloud requests.
+  Format errors are input validation, not mathematical attempts. Explanation records
+  include the same model context. A correct sum is not a judgment of understanding.
+- Export version 2 retains tasks and explanations and adds the support snapshots,
+  denominator history and `endedUnresolved`. There is no import or persisted pupil
+  session. The parent card only shows activity and support, never explanation text.
+- Explicit local read-aloud covers the problem, visible guidance and latest follow-up;
+  stop and replay are always available. Fraction notation is verbalized. Missing or
+  nonlocal voices remain silent with an in-lab message. Voice requests are logged as
+  choices, not proof that audio was heard. No microphone was added to the lab.
+- The printable manual follow-up uses 1/3 + 1/6 after 2–3 days. Print output contains
+  only the blank follow-up sheet, with no session transcript or pupil identifier.
+- `/api/health` and `/api/makker` retain fractionSequence/sequenceVersion 1. Only
+  the fixed first-task explanation uses AI; the prompt now says "tried" rather than
+  "solved" to include unresolved attempts. Artifact/local fallbacks remain intact.
+- Tammet is an inspiration for representation and communication, not a label for a
+  validated teaching intervention. No participant recruitment or learning-effect
+  claim is made by this implementation. See PILOT.md for the facilitated protocol.
+
+
+### Critical pre-pilot corrections
+
+Pending denominator drafts are explicitly separate from the applied partition;
+equivalence checking waits for application. Reapplying the same partition preserves
+work, and learners can return to original parts. Native piece selectors offer a
+larger equivalent target for narrow strip cells, without recoloring quantities.
+Delayed replies preserve focus, caret and reading position; empty or overlong
+replies use the local fallback. Hints have read-aloud controls and stable final-hint
+focus, and leaving the lab stops speech. Post-session read-aloud is exported as
+`summaryReadAloud`, not appended to completed task support. Unsent-draft and export
+text disclosures are visible. See PILOT_REVIEW.md for checks and remaining limits.
