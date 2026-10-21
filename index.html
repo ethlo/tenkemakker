@@ -222,6 +222,14 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
 .vision-link{font-family:var(--f-game);font-size:1rem;text-decoration:none;color:#1e1748;background:var(--sun);padding:7px 14px;border-radius:999px;box-shadow:0 3px 0 var(--sun-dk);white-space:nowrap;align-self:center}
 .vision-link:focus-visible{outline:3px solid var(--violet);outline-offset:2px}
 
+/* Lange (genererte) oppgaver skal aldri gjøre kortet bredere enn skjermen */
+.task{overflow-wrap:anywhere;min-width:0}
+.task.long{font-size:1.3rem;line-height:1.35}
+.task .math.wrap{white-space:normal;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.steps span{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.rung > div{min-width:0;overflow-wrap:anywhere}
+@media (max-width:700px){ .task.long{font-size:1.12rem} }
+
 /* Nytt tema */
 .steps .new-topic{margin-left:8px;border:2px dashed var(--violet);background:transparent;color:var(--violet);font-weight:700;font-size:.8rem;padding:4px 10px;border-radius:999px;cursor:pointer;white-space:nowrap}
 .steps{flex-wrap:wrap}
@@ -1143,6 +1151,8 @@ function renderTaskText(){
   p.append(el("span",null,t.topic));
   const nt = el("button","new-topic",tr("newTopic")); nt.type="button"; nt.onclick = () => toggleTopic(); p.append(nt);
   $("task-text").innerHTML = t.html;
+  $("task-text").classList.toggle("long", (t.plain||"").length > 90);
+  $("task-text").querySelectorAll(".math").forEach(m=>{ if(m.textContent.length > 18) m.classList.add("wrap"); });
   if(TASKS[S.i].gen){ $("task-text").append(el("span","gen",tr("genBadge"))); }
 }
 function greet(){ makker(tr(S.i===0 ? "greetFirst" : "greetNext"), ""); }
