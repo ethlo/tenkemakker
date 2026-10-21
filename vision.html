@@ -1,0 +1,863 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tenkemakker 2030</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&display=swap">
+<style>
+/* Tenkemakker 2030 — siste minutt av demoen: «Hva neste?».
+   Samme tokens som index.html, litt roligere for projektor. Alt innhold er oppdiktet. */
+:root{
+  --bg:#eef2ff; --blob1:#d9e1ff; --blob2:#ffe9c7; --card:#ffffff; --ink:#1e1748; --muted:#5d5889;
+  --violet:#6b4cf6; --violet-dk:#4b2fd0; --violet-soft:#ece7ff;
+  --mint:#14c49b; --mint-dk:#0d8a6c; --mint-soft:#dcf8ef;
+  --sun:#ffc531; --sun-dk:#e0a400; --sun-soft:#fff3cf;
+  --coral:#ff6464; --coral-dk:#c94444; --coral-soft:#ffe3e3; --line:#dcdcf3;
+  --grey:#8f8bab; --grey-soft:#ececf4;
+  --f-game:"Lilita One", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
+  --f-body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#15123a; --blob1:#211c58; --blob2:#2d2148; --card:#1f1a4d; --ink:#f1efff; --muted:#b3add9;
+  --violet:#9a82ff; --violet-dk:#6f55e8; --violet-soft:#2e2768;
+  --mint:#3ddcb3; --mint-dk:#3ddcb3; --mint-soft:#163f45;
+  --sun:#ffd257; --sun-dk:#c99a12; --sun-soft:#3d3420;
+  --coral:#ff8a8a; --coral-dk:#c95a5a; --coral-soft:#4a2433; --line:#332c6b;
+  --grey:#8a85b5; --grey-soft:#2a2560; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#15123a; --blob1:#211c58; --blob2:#2d2148; --card:#1f1a4d; --ink:#f1efff; --muted:#b3add9;
+  --violet:#9a82ff; --violet-dk:#6f55e8; --violet-soft:#2e2768;
+  --mint:#3ddcb3; --mint-dk:#3ddcb3; --mint-soft:#163f45;
+  --sun:#ffd257; --sun-dk:#c99a12; --sun-soft:#3d3420;
+  --coral:#ff8a8a; --coral-dk:#c95a5a; --coral-soft:#4a2433; --line:#332c6b;
+  --grey:#8a85b5; --grey-soft:#2a2560; color-scheme:dark}
+
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;
+  background-image:radial-gradient(circle at 6% 8%,var(--blob1) 0 200px,transparent 201px),
+                   radial-gradient(circle at 98% 46%,var(--blob2) 0 240px,transparent 241px),
+                   radial-gradient(circle at 20% 92%,var(--blob1) 0 180px,transparent 181px);
+  background-attachment:fixed;
+  padding:16px max(16px,env(safe-area-inset-right,0px)) 48px max(16px,env(safe-area-inset-left,0px));
+  overflow-x:hidden}
+@media (min-width:1100px){body{font-size:19px}}
+.wrap{max-width:1240px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+button,input{font-family:inherit;font-size:inherit}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid var(--sun);outline-offset:3px}
+a{color:var(--violet)}
+.num{font-variant-numeric:tabular-nums}
+
+/* Topp */
+header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
+.logo{display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit}
+.logo b{font-family:var(--f-game);font-weight:400;font-size:2rem;line-height:1;color:var(--violet);letter-spacing:.01em}
+.logo b span{color:var(--mint)}
+.yr{font-family:var(--f-game);font-size:1.1rem;background:var(--sun);color:#1e1748;padding:4px 10px;border-radius:12px;transform:rotate(-4deg);display:inline-block}
+.head-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.pillgroup{display:flex;gap:4px;background:var(--card);border:2px solid var(--line);border-radius:999px;padding:4px}
+.pillgroup button,.pillgroup a{border:0;background:transparent;color:var(--muted);font-weight:700;font-size:.9rem;padding:7px 12px;border-radius:999px;cursor:pointer;text-decoration:none;line-height:1.2}
+.pillgroup button[aria-pressed="true"]{background:var(--mint);color:#06352a}
+
+/* Intro */
+.intro{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:20px;align-items:end}
+.kicker{margin:0 0 6px;font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-game);font-weight:400;font-size:clamp(2.6rem,7vw,5.2rem);line-height:.95;margin:0;letter-spacing:.01em}
+h1 .q{color:var(--violet)}
+.lead{font-size:clamp(1.05rem,1.8vw,1.35rem);margin:12px 0 0;max-width:42ch;color:var(--ink)}
+.chapters{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;list-style:none}
+.chapters a{display:flex;gap:10px;align-items:center;text-decoration:none;color:var(--ink);font-weight:700;background:var(--card);border:2px solid var(--line);border-radius:16px;padding:8px 14px}
+.chapters i{font-style:normal;font-family:var(--f-game);width:28px;height:28px;border-radius:9px;display:grid;place-items:center;background:var(--violet);color:#fff}
+.chapters li:nth-child(2) i{background:var(--mint);color:#06352a}
+@media (max-width:760px){.intro{grid-template-columns:minmax(0,1fr)}.chapters{flex-direction:row;flex-wrap:wrap}}
+
+/* Seksjoner */
+section.part{display:flex;flex-direction:column;gap:18px;scroll-margin-top:16px}
+.part-head{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:baseline;justify-content:space-between}
+h2{font-family:var(--f-game);font-weight:400;font-size:clamp(1.8rem,4.2vw,3rem);line-height:1.05;margin:0;letter-spacing:.01em}
+h2 small{display:block;font-family:var(--f-body);font-weight:700;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+h3{font-family:var(--f-game);font-weight:400;font-size:1.5rem;line-height:1.1;margin:0;letter-spacing:.01em}
+.panel{background:var(--card);border:2px solid var(--line);border-radius:24px;padding:20px;min-width:0}
+.fine{font-size:.82rem;color:var(--muted);margin:0}
+
+/* Del 1: tidslinje */
+.stepbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.times{display:flex;gap:6px;flex-wrap:wrap;margin:0;padding:0;list-style:none}
+.times button{border:2px solid var(--line);background:var(--card);color:var(--muted);font-family:var(--f-game);font-size:1.05rem;padding:6px 12px;border-radius:12px;cursor:pointer;line-height:1.1}
+.times button[aria-current="step"]{background:var(--violet);border-color:var(--violet);color:#fff;transform:rotate(-3deg)}
+.times button.past{color:var(--ink)}
+.nav{display:flex;gap:8px;align-items:center}
+.btn{font-weight:700;font-size:1rem;border-radius:16px;padding:10px 16px;cursor:pointer;border:0;background:var(--violet);color:#fff;box-shadow:0 5px 0 var(--violet-dk);transition:transform .08s,box-shadow .08s;line-height:1.2}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--violet-dk)}
+.btn.ghost{background:var(--card);color:var(--ink);border:2px solid var(--line);box-shadow:0 4px 0 var(--line)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.btn[aria-pressed="true"]{background:var(--sun);color:#1e1748;box-shadow:0 5px 0 var(--sun-dk);border-color:var(--sun)}
+.hint-keys{font-size:.8rem;color:var(--muted)}
+@media (max-width:640px){.hint-keys{display:none}}
+
+.heads{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;position:sticky;top:0;z-index:5;padding:8px 0;background:var(--bg)}
+.colhead{display:grid;grid-template-columns:auto minmax(0,1fr);gap:14px;align-items:center;border-radius:22px;padding:12px 16px;border:2px solid var(--line);background:var(--card)}
+.colhead.now{border-color:var(--grey)}
+.colhead.next{border-color:var(--violet)}
+.colhead .who b{display:block;font-family:var(--f-game);font-weight:400;font-size:1.35rem;line-height:1.1}
+.colhead .who span{display:block;font-size:.85rem;color:var(--muted)}
+.meter{display:flex;flex-direction:column;gap:4px;grid-column:1 / -1}
+@media (min-width:1100px){.colhead{grid-template-columns:auto minmax(0,1fr) minmax(0,1.1fr)}.meter{grid-column:auto}}
+.meter-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+.meter-top b{font-family:var(--f-game);font-weight:400;font-size:1.7rem;letter-spacing:0;text-transform:none;color:var(--ink);line-height:1}
+.meter .track{height:22px;border-radius:999px;background:var(--grey-soft);overflow:hidden;position:relative}
+.meter .track i{display:block;height:100%;width:0;border-radius:999px;transition:width .9s cubic-bezier(.3,1.35,.5,1)}
+.now .meter .track i{background:var(--grey)}
+.next .meter .track i{background:linear-gradient(90deg,var(--violet),var(--mint) 70%,var(--sun))}
+.colhead .who em{font-style:normal}
+.tpchip tt{font-family:inherit}
+.tpchip{font-weight:400;display:inline-flex;align-items:center;gap:6px;font-family:var(--f-game);font-size:1.1rem;background:var(--sun-soft);padding:3px 10px;border-radius:12px;margin-left:6px;vertical-align:2px}
+.coin{width:20px;height:20px;border-radius:50%;background:var(--sun);border:3px solid var(--sun-dk);display:inline-block}
+
+/* Ikoner: svar-KI (anonym chatboks) og Makker */
+.aibox{width:56px;height:48px;border-radius:14px 14px 14px 4px;background:var(--grey-soft);border:3px solid var(--grey);position:relative;flex:none}
+.aibox::before,.aibox::after{content:"";position:absolute;left:9px;height:5px;border-radius:3px;background:var(--grey)}
+.aibox::before{top:11px;width:30px}.aibox::after{top:23px;width:20px}
+.makker{width:62px;height:62px;flex:none;position:relative}
+.makker .body{position:absolute;inset:9px 2px 0;background:var(--mint);border-radius:46% 54% 44% 56%/58% 52% 48% 42%;box-shadow:inset -5px -7px 0 #0d9474}
+.makker .ant{position:absolute;left:27px;top:0;width:4px;height:12px;background:#0d9474;border-radius:2px}
+.makker .ant::after{content:"";position:absolute;left:-5px;top:-7px;width:13px;height:13px;border-radius:50%;background:var(--sun)}
+.makker .eye{position:absolute;top:25px;width:13px;height:15px;background:#fff;border-radius:50%}
+.makker .eye::after{content:"";position:absolute;left:3px;top:4px;width:7px;height:7px;border-radius:50%;background:#1e1748;transition:transform .2s}
+.makker .eye.l{left:14px}.makker .eye.r{right:14px}
+.makker .mouth{position:absolute;left:50%;top:44px;width:16px;height:6px;margin-left:-8px;border-bottom:4px solid #1e1748;border-radius:0 0 12px 12px}
+.makker.confused .eye.l::after{transform:translate(-2px,-3px)} .makker.confused .eye.r::after{transform:translate(2px,2px)}
+.makker.confused .mouth{border-bottom:0;border-top:4px solid #1e1748;border-radius:12px 12px 0 0;top:48px;transform:rotate(-10deg)}
+.makker.happy .mouth{height:11px;border-bottom-width:5px;width:22px;margin-left:-11px}
+.makker.happy{animation:bounce .6s 2}
+.makker.talking .mouth{animation:talk .22s 6 alternate}
+@keyframes talk{to{height:12px}}
+@keyframes bounce{40%{transform:translateY(-8px) rotate(-4deg)}}
+
+.rows{display:flex;flex-direction:column;gap:16px}
+.row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;align-items:stretch}
+.stepmode .row:not(.cur){display:none}
+.stepmode .row.cur .card{animation:enter .45s ease-out}
+@keyframes enter{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.card{background:var(--card);border:2px solid var(--line);border-radius:24px;padding:18px 20px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.stepmode .card{min-height:360px}
+.card.now{background:color-mix(in srgb,var(--card) 88%,var(--grey-soft))}
+.card-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.time{font-family:var(--f-game);font-size:1.3rem;padding:2px 10px;border-radius:10px;background:var(--grey-soft);color:var(--ink);line-height:1.3}
+.next .time{background:var(--violet);color:#fff}
+.card-top h4{margin:0;font-size:1.1rem;font-weight:700}
+.tag{margin-left:auto;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 9px;border-radius:999px;background:var(--grey-soft);color:var(--muted)}
+.next .tag{background:var(--violet-soft);color:var(--violet)}
+.card p{margin:0}
+.say{color:var(--muted)}
+.chat{display:flex;flex-direction:column;gap:8px}
+.msg{padding:10px 14px;border-radius:18px;max-width:92%;overflow-wrap:anywhere;line-height:1.4}
+.msg small{display:block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;opacity:.75;margin-bottom:2px}
+.msg.ida{background:var(--violet);color:#fff;border-bottom-right-radius:6px;align-self:flex-end}
+.msg.ai{background:var(--grey-soft);border-bottom-left-radius:6px;align-self:flex-start}
+.msg.mk{background:var(--mint-soft);border-bottom-left-radius:6px;align-self:flex-start}
+.msg.par{background:var(--sun-soft);border-bottom-left-radius:6px;align-self:flex-start}
+.msg.pal{background:var(--coral-soft);border-bottom-left-radius:6px;align-self:flex-start}
+.sys{align-self:center;font-weight:700;font-size:.88rem;text-align:center;border-radius:999px;padding:5px 14px;background:var(--sun-soft)}
+.sys.good{background:var(--mint-soft);color:var(--mint-dk)}
+.sys.bad{background:var(--coral-soft);color:var(--coral-dk)}
+:root[data-theme="dark"] .sys.bad{color:var(--coral)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .sys.bad{color:var(--coral)}}
+.sys.flat{background:var(--grey-soft);color:var(--muted)}
+.math{font-family:var(--f-game);font-weight:400;letter-spacing:.02em;white-space:nowrap}
+.taskcard{font-family:var(--f-game);font-size:1.8rem;line-height:1.1;padding:10px 14px;border-radius:16px;background:var(--bg);border:2px dashed var(--line);align-self:flex-start}
+.rung{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:start;padding:8px 10px;border-radius:14px;border:2px solid var(--violet);background:var(--violet-soft)}
+.rung b{display:grid;place-items:center;width:28px;height:28px;border-radius:9px;background:var(--violet);color:#fff;font-family:var(--f-game);font-weight:400}
+.rung.locked{border-style:dashed;border-color:var(--line);background:transparent;color:var(--muted)}
+.rung.locked b{background:var(--line);color:var(--ink)}
+.rung small{display:block;font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.68rem;color:var(--muted)}
+.ladder{display:flex;flex-direction:column;gap:6px}
+.note{font-size:.92rem;padding:10px 12px;border-left:4px solid var(--grey);background:var(--grey-soft);border-radius:4px 12px 12px 4px}
+.next .note{border-left-color:var(--mint);background:var(--mint-soft)}
+.phone{border:3px solid var(--ink);border-radius:20px;padding:12px 14px;max-width:340px;background:var(--card);display:flex;flex-direction:column;gap:6px}
+.phone small{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.phone b{font-family:var(--f-game);font-weight:400;font-size:1.15rem;line-height:1.2}
+.pizzarow{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.pizza{width:110px;height:110px;border-radius:50%;flex:none;border:5px solid var(--sun-dk);
+  background:repeating-conic-gradient(from 0deg,transparent 0 28.5deg,var(--card) 28.5deg 30deg),
+             conic-gradient(var(--violet) 0 240deg,var(--sun) 240deg 330deg,var(--grey-soft) 330deg 360deg)}
+.legend{display:flex;flex-direction:column;gap:4px;font-weight:700}
+.legend span{display:flex;gap:8px;align-items:center}
+.legend i{width:14px;height:14px;border-radius:4px;display:inline-block}
+.minimeter{display:none;align-items:center;gap:8px;font-size:.78rem;font-weight:700;color:var(--muted);margin-top:auto}
+.minimeter .track{flex:1;height:10px;border-radius:999px;background:var(--grey-soft);overflow:hidden}
+.minimeter .track i{display:block;height:100%;border-radius:999px}
+.now .minimeter i{background:var(--grey)}
+.next .minimeter i{background:linear-gradient(90deg,var(--violet),var(--mint))}
+.allmode .minimeter{display:flex}
+.punch{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.punch p{margin:0;font-family:var(--f-game);font-size:clamp(1.2rem,2.2vw,1.6rem);line-height:1.2;padding:14px 18px;border-radius:20px}
+.punch .a{background:var(--grey-soft);color:var(--ink)}
+.punch .b{background:var(--violet);color:#fff}
+
+@media (max-width:760px){
+  .heads{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:8px;padding:6px 0}
+  .colhead{padding:8px 10px;gap:8px;border-radius:16px;grid-template-columns:minmax(0,1fr)}
+  .colhead .ico{display:none}
+  .colhead .who b{font-size:1.02rem}
+  .colhead .who span{display:none}
+  .meter-top{font-size:.66rem}
+  .meter-top b{font-size:1.2rem}
+  .meter .track{height:14px}
+  .tpchip{font-size:.9rem;padding:1px 6px;margin-left:2px}
+  .tpchip .coin{width:14px;height:14px;border-width:2px}
+  .row{grid-template-columns:minmax(0,1fr);gap:10px}
+  .stepmode .card{min-height:0}
+  .card{padding:14px 16px;border-radius:20px}
+  .taskcard{font-size:1.4rem}
+  .punch{grid-template-columns:minmax(0,1fr)}
+}
+
+/* Del 2: skala */
+.scale{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr);gap:16px;align-items:start}
+@media (max-width:900px){.scale{grid-template-columns:minmax(0,1fr)}}
+.controls{display:flex;flex-direction:column;gap:22px}
+.ctl{display:flex;flex-direction:column;gap:8px}
+.ctl-top{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.ctl label{font-weight:700}
+.ctl output{font-family:var(--f-game);font-size:1.6rem;line-height:1;white-space:nowrap}
+.presets{display:flex;flex-wrap:wrap;gap:6px}
+.presets button{border:2px solid var(--line);background:var(--bg);color:var(--ink);font-weight:700;font-size:.82rem;padding:6px 10px;border-radius:999px;cursor:pointer;line-height:1.2}
+.presets button[aria-pressed="true"]{background:var(--violet);border-color:var(--violet);color:#fff}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:30px;background:transparent;cursor:pointer;margin:0}
+input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:999px;background:var(--violet-soft)}
+input[type=range]::-moz-range-track{height:12px;border-radius:999px;background:var(--violet-soft)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:28px;height:28px;margin-top:-8px;border-radius:50%;background:var(--violet);border:4px solid var(--card);box-shadow:0 2px 0 var(--violet-dk)}
+input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--violet);border:4px solid var(--card);box-shadow:0 2px 0 var(--violet-dk)}
+input.coral::-webkit-slider-runnable-track{background:var(--coral-soft)}
+input.coral::-moz-range-track{background:var(--coral-soft)}
+input.coral::-webkit-slider-thumb{background:var(--coral);box-shadow:0 2px 0 var(--coral-dk)}
+input.coral::-moz-range-thumb{background:var(--coral)}
+.stamp{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--coral-dk);border:2px solid currentColor;border-radius:8px;padding:2px 8px;transform:rotate(-2deg)}
+:root[data-theme="dark"] .stamp{color:var(--coral)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .stamp{color:var(--coral)}}
+
+.outputs{display:flex;flex-direction:column;gap:14px}
+.hero-num{background:var(--violet);color:#fff;border-radius:24px;padding:20px 22px;display:flex;flex-direction:column;gap:4px}
+.hero-num .lbl{font-weight:700;font-size:.9rem;opacity:.9}
+.hero-num .big{font-family:var(--f-game);font-size:clamp(2.6rem,7vw,5rem);line-height:1;letter-spacing:.01em}
+.hero-num .sub{font-size:.95rem;opacity:.92}
+.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+@media (max-width:480px){.stats{grid-template-columns:minmax(0,1fr)}}
+.stat{background:var(--card);border:2px solid var(--line);border-radius:20px;padding:14px 16px;display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat .big{font-family:var(--f-game);font-size:clamp(1.8rem,3.6vw,2.6rem);line-height:1.05}
+.stat .lbl{font-weight:700}
+.stat .sub{font-size:.85rem;color:var(--muted)}
+.stat.mint{background:var(--mint-soft);border-color:var(--mint-soft)}
+.stat.sun{background:var(--sun-soft);border-color:var(--sun-soft)}
+.dots{display:grid;grid-template-columns:repeat(20,minmax(0,1fr));gap:4px;max-width:520px}
+.dots i{aspect-ratio:1;border-radius:50%;background:var(--grey-soft);transition:background .25s}
+.dots i.on{background:var(--mint)}
+.dotcap{display:flex;gap:14px;flex-wrap:wrap;font-size:.85rem;color:var(--muted);font-weight:700}
+.dotcap span{display:inline-flex;align-items:center;gap:6px}
+.dotcap i{width:12px;height:12px;border-radius:50%;display:inline-block}
+details.formula{background:var(--card);border:2px dashed var(--line);border-radius:18px;padding:12px 16px}
+details.formula summary{cursor:pointer;font-weight:700}
+details.formula ul{margin:10px 0 0;padding-left:20px;font-size:.88rem;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+details.formula code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.85em;color:var(--ink);background:var(--bg);padding:1px 5px;border-radius:5px;overflow-wrap:anywhere}
+
+/* Hvem faller utenfor */
+.gaps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:900px){.gaps{grid-template-columns:minmax(0,1fr)}}
+.gap{background:var(--card);border:2px solid var(--line);border-top:8px solid var(--coral);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.gap .big{font-family:var(--f-game);font-size:clamp(2rem,4vw,2.8rem);line-height:1}
+.gap .lbl{font-weight:700}
+.gap p{margin:0;font-size:.92rem}
+.gap .so{color:var(--muted)}
+.humans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+@media (max-width:900px){.humans{grid-template-columns:minmax(0,1fr)}}
+.human{padding:16px 18px;border-radius:20px;background:var(--mint-soft);display:flex;flex-direction:column;gap:6px}
+.human b{font-family:var(--f-game);font-weight:400;font-size:1.3rem}
+.human p{margin:0}
+.stepback{padding:16px 20px;border-radius:20px;border:3px solid var(--ink);display:flex;gap:14px;align-items:center}
+.stepback p{margin:0;font-size:1.05rem}
+.stepback .makker{transform:scaleX(-1)}
+
+/* Åpne spørsmål */
+.questions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;counter-reset:q}
+@media (max-width:900px){.questions{grid-template-columns:minmax(0,1fr)}}
+.question{background:var(--sun);color:#1e1748;border-radius:24px;padding:20px;display:flex;flex-direction:column;gap:8px;box-shadow:0 6px 0 var(--sun-dk)}
+.question:nth-child(2){transform:rotate(.8deg)}
+.question:nth-child(3){transform:rotate(-.8deg)}
+.question b{font-family:var(--f-game);font-weight:400;font-size:clamp(1.5rem,2.6vw,2rem);line-height:1.05}
+.question p{margin:0;font-size:.95rem}
+
+footer{display:flex;flex-wrap:wrap;gap:8px 20px;justify-content:space-between;font-size:.85rem;color:var(--muted);border-top:2px solid var(--line);padding-top:14px}
+
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <a class="logo" href="index.html" data-i18n-title="backApp" title="Tilbake til appen">
+      <b>Tenke<span>makker</span></b><span class="yr">2030</span>
+    </a>
+    <div class="head-right">
+      <div class="pillgroup" role="group" data-i18n-aria="themeAria" aria-label="Fargetema">
+        <button id="theme" type="button" aria-pressed="false" data-i18n="themeBtn">Mørk</button>
+      </div>
+      <div class="pillgroup" role="group" aria-label="Språk / Language">
+        <button id="lang-nb" type="button" aria-pressed="true" lang="nb" title="Norsk">NO</button>
+        <button id="lang-en" type="button" aria-pressed="false" lang="en" title="English">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="intro">
+    <div>
+      <p class="kicker" data-i18n="kicker">Siste minutt · Claude Impact Lab Oslo</p>
+      <h1 data-i18n-html="title">Hva <span class="q">neste?</span></h1>
+      <p class="lead" data-i18n="lead">KI kan gjøre leksene på to sekunder. Spørsmålet er hva som skjer med tenkingen, for én elev og for en hel by.</p>
+    </div>
+    <ol class="chapters">
+      <li><a href="#part1"><i>1</i><span data-i18n="ch1">Samme ettermiddag, to ganger</span></a></li>
+      <li><a href="#part2"><i>2</i><span data-i18n="ch2">Fra én elev til hele Oslo</span></a></li>
+    </ol>
+  </div>
+
+  <!-- DEL 1 -->
+  <section class="part" id="part1" aria-labelledby="p1h">
+    <div class="part-head">
+      <h2 id="p1h"><small data-i18n="p1kicker">Del 1 · Ida, 13 år (oppdiktet)</small><span data-i18n="p1title">Samme ettermiddag, to ganger</span></h2>
+    </div>
+
+    <div class="stepbar">
+      <ol class="times" id="times" data-i18n-aria="timesAria" aria-label="Tidspunkter"></ol>
+      <div class="nav">
+        <span class="hint-keys" data-i18n="keys">Piltaster ← →</span>
+        <button class="btn ghost" id="prev" type="button" data-i18n="prev">Forrige</button>
+        <button class="btn" id="next" type="button" data-i18n="next">Neste</button>
+        <button class="btn ghost" id="all" type="button" aria-pressed="false" data-i18n="showAll">Vis alt</button>
+      </div>
+    </div>
+
+    <div id="story" class="stepmode">
+      <div class="heads" aria-hidden="false">
+        <div class="colhead now">
+          <div class="aibox ico" aria-hidden="true"></div>
+          <div class="who"><b data-i18n="nowTitle">I dag · svar-KI</b><span data-i18n="nowSub">En vanlig chat som gir svaret</span></div>
+          <div class="meter">
+            <div class="meter-top"><span data-i18n="meter">Egen tenking</span><b class="num" id="m-now">5 %</b></div>
+            <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="mt-now" aria-valuenow="5"><i style="width:5%"></i></div>
+          </div>
+        </div>
+        <div class="colhead next">
+          <div class="makker ico" id="face" aria-hidden="true"><div class="ant"></div><div class="body"></div><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div>
+          <div class="who"><b><em data-i18n="nextTitle">2030 · Tenkemakker</em><strong class="tpchip num" data-i18n-title="tpTitle" title="Tankepoeng"><i class="coin"></i><tt id="tp">0</tt></strong></b><span data-i18n="nextSub">En makker som aldri gir svaret</span></div>
+          <div class="meter">
+            <div class="meter-top"><span data-i18n="meter">Egen tenking</span><b class="num" id="m-next">20 %</b></div>
+            <div class="track" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="mt-next" aria-valuenow="20"><i style="width:20%"></i></div>
+          </div>
+        </div>
+      </div>
+      <div class="rows" id="rows" aria-live="polite"></div>
+    </div>
+
+    <div class="punch">
+      <p class="a" data-i18n="punchA">Leksa var riktig. Ida lærte ingenting.</p>
+      <p class="b" data-i18n="punchB">Leksa tok lenger tid. Ida kan det, og kan lære det bort.</p>
+    </div>
+  </section>
+
+  <!-- DEL 2 -->
+  <section class="part" id="part2" aria-labelledby="p2h">
+    <div class="part-head">
+      <h2 id="p2h"><small data-i18n="p2kicker">Del 2 · Skala</small><span data-i18n="p2title">Fra én elev til hele Oslo</span></h2>
+      <span class="stamp" data-i18n="stamp">Regneeksempel · oppdiktede antakelser</span>
+    </div>
+
+    <div class="scale">
+      <div class="panel controls">
+        <div class="ctl">
+          <div class="ctl-top"><label for="s-pupils" data-i18n="lPupils">Elever</label><output id="o-pupils" class="num" for="s-pupils">450</output></div>
+          <div class="presets" id="presets"></div>
+          <input type="range" id="s-pupils" min="0" max="1000" step="1" value="0">
+          <p class="fine" data-i18n="pupilsFine">Grove, oppdiktede størrelser: én klasse 24, én skole 450, ungdomsskolen i Oslo ca. 25 000, alle elever i Oslo ca. 90 000.</p>
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="s-share" data-i18n="lShare">Andel som bruker Tenkemakker i stedet for svar-KI</label><output id="o-share" class="num" for="s-share">60 %</output></div>
+          <input type="range" id="s-share" min="0" max="100" step="5" value="60">
+        </div>
+        <div class="ctl">
+          <div class="ctl-top"><label for="s-min" data-i18n="lMin">Minutter lekser per skoledag</label><output id="o-min" class="num" for="s-min">30 min</output></div>
+          <input type="range" id="s-min" min="10" max="60" step="5" value="30">
+        </div>
+        <div class="ctl">
+          <div class="dots" id="dots" aria-hidden="true"></div>
+          <div class="dotcap"><span><i style="background:var(--mint)"></i><span data-i18n="dotOn">Tenkemakker</span></span><span><i style="background:var(--grey-soft);outline:1px solid var(--line)"></i><span data-i18n="dotOff">Svar-KI</span></span><span id="dotper" class="num"></span></div>
+        </div>
+      </div>
+
+      <div class="outputs">
+        <div class="hero-num">
+          <span class="lbl" data-i18n="oHours">Timer med egen tenking i året, ekstra</span>
+          <span class="big num" id="r-hours">0</span>
+          <span class="sub num" id="r-hours-sub"></span>
+        </div>
+        <div class="stats">
+          <div class="stat mint">
+            <span class="lbl" data-i18n="oExpl">Forklaringer gitt</span>
+            <span class="big num" id="r-expl">0</span>
+            <span class="sub" data-i18n="oExplSub">Elever som lærer bort til Makker, i året</span>
+          </div>
+          <div class="stat sun">
+            <span class="lbl" data-i18n="oMis">Misforståelser fanget før prøven</span>
+            <span class="big num" id="r-mis">0</span>
+            <span class="sub" data-i18n="oMisSub">Læreren ser mønsteret, ikke samtalene</span>
+          </div>
+        </div>
+        <details class="formula">
+          <summary data-i18n="fSum">Slik regner vi (antakelser)</summary>
+          <ul id="formula"></ul>
+        </details>
+      </div>
+    </div>
+
+    <!-- Hvem faller utenfor -->
+    <div class="part-head" style="margin-top:14px">
+      <h3 data-i18n="leftTitle" style="font-size:clamp(1.6rem,3.4vw,2.4rem)">Hvem faller utenfor?</h3>
+      <span class="fine num" id="leftScale"></span>
+    </div>
+    <div class="gaps" id="gaps"></div>
+    <p class="fine" data-i18n="gapsFine">Andelene er oppdiktede eksempler. Flytt glidebryterne for å se hva de betyr ved valgt skala.</p>
+
+    <h3 data-i18n="humansTitle">Dette må bli hos mennesker</h3>
+    <div class="humans">
+      <div class="human"><b data-i18n="h1t">Lærere</b><p data-i18n="h1">Læreren kjenner hele eleven. Makker ser én oppgave. Vurdering og karakterer er lærerens.</p></div>
+      <div class="human"><b data-i18n="h2t">Foreldre</b><p data-i18n="h2">Middagsspørsmålet er en invitasjon til å snakke, ikke en rapport om barnet.</p></div>
+      <div class="human"><b data-i18n="h3t">Hverandre</b><p data-i18n="h3">Å forklare til en klassekamerat slår å forklare til en robot. Makker er trening, ikke erstatning.</p></div>
+    </div>
+    <div class="stepback">
+      <div class="makker" aria-hidden="true"><div class="ant"></div><div class="body"></div><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div>
+      <p data-i18n-html="stepback"><b>Her trer Makker tilbake:</b> når det handler om følelser, trøst, vurdering eller noe hjemme. Da er svaret «snakk med en voksen du stoler på», ikke flere hint.</p>
+    </div>
+
+    <h3 data-i18n="qTitle" style="margin-top:10px">Tre åpne spørsmål</h3>
+    <div class="questions">
+      <div class="question"><b data-i18n="q1">Konkurranse eller samarbeid?</b><p data-i18n="q1s">Rangering motiverer noen og knuser andre. Klassemål i stedet?</p></div>
+      <div class="question"><b data-i18n="q2">Hvor mye skal foreldre se?</b><p data-i18n="q2s">Formen på uka, ikke samtalene. Hvor går grensen, og hvem bestemmer den?</p></div>
+      <div class="question"><b data-i18n="q3">Hvem eier dataene?</b><p data-i18n="q3s">Eleven, skolen, kommunen eller leverandøren? Og hva slettes når?</p></div>
+    </div>
+  </section>
+
+  <footer>
+    <span data-i18n="foot">Alle navn, personer og tall er oppdiktet. Laget på Claude Impact Lab, Mesh Oslo, 21. oktober 2026.</span>
+    <a href="index.html" data-i18n="backApp">Tilbake til appen</a>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ---------- Tekster ---------- */
+const STR = {
+  nb:{
+    backApp:"Tilbake til appen", themeAria:"Fargetema", themeDark:"Mørk", themeLight:"Lys",
+    kicker:"Siste minutt · Claude Impact Lab Oslo",
+    title:'Hva <span class="q">neste?</span>',
+    lead:"KI kan gjøre leksene på to sekunder. Spørsmålet er hva som skjer med tenkingen, for én elev og for en hel by.",
+    ch1:"Samme ettermiddag, to ganger", ch2:"Fra én elev til hele Oslo",
+    p1kicker:"Del 1 · Ida, 13 år (oppdiktet)", p1title:"Samme ettermiddag, to ganger",
+    timesAria:"Tidspunkter", keys:"Piltaster ← →", prev:"Forrige", next:"Neste", showAll:"Vis alt", showSteps:"Steg for steg",
+    nowTitle:"I dag · svar-KI", nowSub:"En vanlig chat som gir svaret",
+    nextTitle:"2030 · Tenkemakker", nextSub:"En makker som aldri gir svaret",
+    meter:"Egen tenking", tpTitle:"Tankepoeng",
+    punchA:"Leksa var riktig. Ida lærte ingenting.",
+    punchB:"Leksa tok lenger tid. Ida kan det, og kan lære det bort.",
+    p2kicker:"Del 2 · Skala", p2title:"Fra én elev til hele Oslo",
+    stamp:"Regneeksempel · oppdiktede antakelser",
+    lPupils:"Elever", lShare:"Andel som bruker Tenkemakker i stedet for svar-KI", lMin:"Minutter lekser per skoledag",
+    pupilsFine:"Grove, oppdiktede størrelser: én klasse 24, én skole 450, ungdomsskolen i Oslo ca. 25 000, alle elever i Oslo ca. 90 000.",
+    presets:["Én klasse","Én skole","Ungdomsskolen i Oslo","Alle elever i Oslo"],
+    dotOn:"Tenkemakker", dotOff:"Svar-KI", dotPer:n=>`Hver prikk ≈ ${n} elever`, dotPct:"Hver prikk = 1 % av elevene",
+    oHours:"Timer med egen tenking i året, ekstra",
+    hoursSub:(u,h)=>`${u} elever bruker Tenkemakker · ca. ${h} timer mer egen tenking per elev i året`,
+    oExpl:"Forklaringer gitt", oExplSub:"Elever som lærer bort til Makker, i året",
+    oMis:"Misforståelser fanget før prøven", oMisSub:"Læreren ser mønsteret, ikke samtalene",
+    fSum:"Slik regner vi (antakelser)",
+    formula:(d,m,s)=>[
+      `Brukere = elever × andel = <code>${d.pupils} × ${s} %</code>`,
+      `180 skoledager i året, ${m} minutter lekser per dag.`,
+      `Med svar-KI er ca. 10 % av leksetiden egen tenking, med Tenkemakker ca. 70 %. Forskjellen (60 prosentpoeng) telles som ekstra egen tenking: <code>brukere × ${m} min × 180 × 0,6 ÷ 60</code>.`,
+      `Én forklaring (lære bort eller svare på et hint-spørsmål) per 15 minutter lekser: <code>brukere × ${m} × 180 ÷ 15</code>.`,
+      `1 av 10 forklaringer avslører en misforståelse som læreren ser i klasseoversikten før prøven.`,
+      `Alle tall er avrundet og oppdiktet. Poenget er størrelsesorden, ikke presisjon.`
+    ],
+    leftTitle:"Hvem faller utenfor?", leftScale:n=>`Av ${n} elever`,
+    gaps:[
+      {lbl:"uten egen PC eller nettbrett hjemme", so:"Skolen må låne ut enhet, eller Makker må virke på en gammel mobil uten innlogging."},
+      {lbl:"uten voksen som kan hjelpe med lekser", so:"De har mest å vinne på en tålmodig makker, og mest å tape hvis den krever hjelp hjemme for å komme i gang."},
+      {lbl:"som trenger et annet språk enn norsk", so:"Makker kan forklare på morsmålet, men oppgaven og læreren er på norsk. Begge deler må med."}
+    ],
+    gapSlider:"Andel (oppdiktet)",
+    gapsFine:"Andelene er oppdiktede eksempler. Flytt glidebryterne for å se hva de betyr ved valgt skala.",
+    humansTitle:"Dette må bli hos mennesker",
+    h1t:"Lærere", h1:"Læreren kjenner hele eleven. Makker ser én oppgave. Vurdering og karakterer er lærerens.",
+    h2t:"Foreldre", h2:"Middagsspørsmålet er en invitasjon til å snakke, ikke en rapport om barnet.",
+    h3t:"Hverandre", h3:"Å forklare til en klassekamerat slår å forklare til en robot. Makker er trening, ikke erstatning.",
+    stepback:"<b>Her trer Makker tilbake:</b> når det handler om følelser, trøst, vurdering eller noe hjemme. Da er svaret «snakk med en voksen du stoler på», ikke flere hint.",
+    qTitle:"Tre åpne spørsmål",
+    q1:"Konkurranse eller samarbeid?", q1s:"Rangering motiverer noen og knuser andre. Klassemål i stedet?",
+    q2:"Hvor mye skal foreldre se?", q2s:"Formen på uka, ikke samtalene. Hvor går grensen, og hvem bestemmer den?",
+    q3:"Hvem eier dataene?", q3s:"Eleven, skolen, kommunen eller leverandøren? Og hva slettes når?",
+    foot:"Alle navn, personer og tall er oppdiktet. Laget på Claude Impact Lab, Mesh Oslo, 21. oktober 2026.",
+    stepOf:(i,n)=>`Steg ${i} av ${n}`
+  },
+  en:{
+    backApp:"Back to the app", themeAria:"Colour theme", themeDark:"Dark", themeLight:"Light",
+    kicker:"Last minute · Claude Impact Lab Oslo",
+    title:'What <span class="q">next?</span>',
+    lead:"AI can do the homework in two seconds. The question is what happens to the thinking, for one pupil and for a whole city.",
+    ch1:"The same afternoon, twice", ch2:"From one pupil to all of Oslo",
+    p1kicker:"Part 1 · Ida, 13 (fictional)", p1title:"The same afternoon, twice",
+    timesAria:"Moments", keys:"Arrow keys ← →", prev:"Previous", next:"Next", showAll:"Show all", showSteps:"Step by step",
+    nowTitle:"Today · answer-AI", nowSub:"A generic chat that gives the answer",
+    nextTitle:"2030 · Tenkemakker", nextSub:"A buddy that never gives the answer",
+    meter:"Own thinking", tpTitle:"Thinking points",
+    punchA:"The homework was right. Ida learned nothing.",
+    punchB:"The homework took longer. Ida gets it, and can teach it.",
+    p2kicker:"Part 2 · Scale", p2title:"From one pupil to all of Oslo",
+    stamp:"Worked example · made-up assumptions",
+    lPupils:"Pupils", lShare:"Share using Tenkemakker instead of an answer-AI", lMin:"Minutes of homework per school day",
+    pupilsFine:"Rough, made-up sizes: one class 24, one school 450, Oslo lower secondary about 25,000, all Oslo pupils about 90,000.",
+    presets:["One class","One school","Oslo lower secondary","All Oslo pupils"],
+    dotOn:"Tenkemakker", dotOff:"Answer-AI", dotPer:n=>`Each dot ≈ ${n} pupils`, dotPct:"Each dot = 1% of pupils",
+    oHours:"Extra hours of own thinking per year",
+    hoursSub:(u,h)=>`${u} pupils use Tenkemakker · about ${h} more hours of own thinking per pupil per year`,
+    oExpl:"Explanations given", oExplSub:"Pupils teaching Makker, per year",
+    oMis:"Misconceptions caught before the test", oMisSub:"The teacher sees the pattern, not the chats",
+    fSum:"How we calculate (assumptions)",
+    formula:(d,m,s)=>[
+      `Users = pupils × share = <code>${d.pupils} × ${s}%</code>`,
+      `180 school days a year, ${m} minutes of homework per day.`,
+      `With an answer-AI about 10% of homework time is own thinking; with Tenkemakker about 70%. The difference (60 percentage points) counts as extra own thinking: <code>users × ${m} min × 180 × 0.6 ÷ 60</code>.`,
+      `One explanation (teaching back or answering a hint question) per 15 minutes of homework: <code>users × ${m} × 180 ÷ 15</code>.`,
+      `1 in 10 explanations reveals a misconception the teacher sees in the class overview before the test.`,
+      `All numbers are rounded and made up. The point is the order of magnitude, not precision.`
+    ],
+    leftTitle:"Who gets left out?", leftScale:n=>`Of ${n} pupils`,
+    gaps:[
+      {lbl:"without their own computer or tablet at home", so:"The school must lend devices, or Makker must run on an old phone without a login."},
+      {lbl:"without an adult who can help with homework", so:"They have the most to gain from a patient buddy, and the most to lose if getting started needs help at home."},
+      {lbl:"who need a language other than Norwegian", so:"Makker can explain in their first language, but the task and the teacher are in Norwegian. Both must be included."}
+    ],
+    gapSlider:"Share (made up)",
+    gapsFine:"The shares are made-up examples. Move the sliders to see what they mean at the chosen scale.",
+    humansTitle:"What must stay with people",
+    h1t:"Teachers", h1:"The teacher knows the whole pupil. Makker sees one task. Assessment and grades belong to the teacher.",
+    h2t:"Parents", h2:"The dinner question is an invitation to talk, not a report on the child.",
+    h3t:"Each other", h3:"Explaining to a classmate beats explaining to a robot. Makker is practice, not a replacement.",
+    stepback:"<b>Where Makker steps back:</b> feelings, comfort, grades, or anything going on at home. Then the answer is “talk to an adult you trust”, not more hints.",
+    qTitle:"Three open questions",
+    q1:"Competition or cooperation?", q1s:"Rankings motivate some and crush others. Class goals instead?",
+    q2:"How much should parents see?", q2s:"The shape of the week, not the chats. Where is the line, and who draws it?",
+    q3:"Who owns the data?", q3s:"The pupil, the school, the city or the vendor? And what gets deleted when?",
+    foot:"All names, people and numbers are made up. Built at Claude Impact Lab, Mesh Oslo, 21 October 2026.",
+    stepOf:(i,n)=>`Step ${i} of ${n}`
+  }
+};
+
+/* ---------- Tidslinja: fem øyeblikk, to kolonner ---------- */
+// meter: egen tenking (%) i hver kolonne. tp: tankepoeng etter øyeblikket (se TP-tabellen i DESIGN.md).
+const F = s => `<span class="math">${s}</span>`;
+const MOMENTS = [
+  { time:{nb:"16:30",en:"16:30"}, meter:[5,20], tp:0, mood:"",
+    nb:{ title:"Leksa starter",
+      now:`<p class="say">Ida limer inn oppgaven i en vanlig KI-chat.</p>
+        <div class="chat"><div class="msg ida"><small>Ida</small>Regn ut ${F("2/3 + 1/4")}</div></div>`,
+      next:`<p class="say">Ida åpner Tenkemakker og prøver selv først.</p>
+        <div class="taskcard">${F("2/3 + 1/4 = ?")}</div>
+        <div class="chat"><div class="msg ida"><small>Ida</small>${F("3/7")}?</div>
+        <div class="sys">Ikke helt. Feil svar koster ingen poeng.</div></div>` },
+    en:{ title:"Homework starts",
+      now:`<p class="say">Ida pastes the task into a generic AI chat.</p>
+        <div class="chat"><div class="msg ida"><small>Ida</small>Calculate ${F("2/3 + 1/4")}</div></div>`,
+      next:`<p class="say">Ida opens Tenkemakker and tries on her own first.</p>
+        <div class="taskcard">${F("2/3 + 1/4 = ?")}</div>
+        <div class="chat"><div class="msg ida"><small>Ida</small>${F("3/7")}?</div>
+        <div class="sys">Not quite. Wrong answers cost no points.</div></div>` } },
+
+  { time:{nb:"16:32",en:"16:32"}, meter:[5,50], tp:6, mood:"talking",
+    nb:{ title:"To minutter senere",
+      now:`<div class="chat"><div class="msg ai"><small>Svar-KI · 2 sekunder</small>Svaret er <b>${F("11/12")}</b>. Fellesnevner 12: ${F("8/12 + 3/12 = 11/12")}.</div>
+        <div class="msg ida"><small>Ida</small>takk</div></div>
+        <p class="note">Ida kopierer ${F("11/12")} inn i leksa. Hun leste ikke forklaringen.</p>`,
+      next:`<div class="ladder">
+        <div class="rung"><b>1</b><div><small>Spørsmål</small>Hvilke biter er størst, tredjedeler eller fjerdedeler?</div></div>
+        <div class="chat"><div class="msg ida"><small>Ida</small>Tredjedeler. Så jeg kan ikke bare plusse dem…</div></div>
+        <div class="rung"><b>2</b><div><small>Tips</small>Gjør bitene like store. Hvilket tall går både 3 og 4 opp i?</div></div>
+        <div class="chat"><div class="msg ida"><small>Ida</small>12!</div></div>
+        <div class="rung locked"><b>3</b><div><small>Eksempel</small>Trengte hun ikke.</div></div></div>` },
+    en:{ title:"Two minutes later",
+      now:`<div class="chat"><div class="msg ai"><small>Answer-AI · 2 seconds</small>The answer is <b>${F("11/12")}</b>. Common denominator 12: ${F("8/12 + 3/12 = 11/12")}.</div>
+        <div class="msg ida"><small>Ida</small>thx</div></div>
+        <p class="note">Ida copies ${F("11/12")} into her homework. She didn't read the explanation.</p>`,
+      next:`<div class="ladder">
+        <div class="rung"><b>1</b><div><small>Question</small>Which pieces are bigger, thirds or quarters?</div></div>
+        <div class="chat"><div class="msg ida"><small>Ida</small>Thirds. So I can't just add them up…</div></div>
+        <div class="rung"><b>2</b><div><small>Tip</small>Make the pieces the same size. Which number do both 3 and 4 go into?</div></div>
+        <div class="chat"><div class="msg ida"><small>Ida</small>12!</div></div>
+        <div class="rung locked"><b>3</b><div><small>Example</small>She didn't need it.</div></div></div>` } },
+
+  { time:{nb:"16:40",en:"16:40"}, meter:[5,80], tp:43, mood:"confused",
+    nb:{ title:"Ida blir læreren",
+      now:`<p class="say">Ida er ferdig for lengst. Leksa ser perfekt ut.</p>
+        <div class="sys flat">Tid: 2 minutter · Egen tenking: nesten ingen</div>
+        <p class="note">Ingen merker noe. Ikke Ida heller.</p>`,
+      next:`<div class="chat"><div class="msg ida"><small>Ida</small>${F("8/12 + 3/12 = 11/12")}</div>
+        <div class="sys good">Riktig! +12 TP</div>
+        <div class="msg mk"><small>Makker</small>Men… er ikke ${F("2/3 + 1/4 = 3/7")}? Man legger jo sammen oppe og nede?</div>
+        <div class="msg ida"><small>Ida</small>Nei! Da er bitene ulike store. Del pizzaen i 12 først, så kan du plusse.</div>
+        <div class="msg mk"><small>Makker</small>Åh! Nå skjønner jeg.</div>
+        <div class="sys good">Lærte bort · +25 TP</div></div>` },
+    en:{ title:"Ida becomes the teacher",
+      now:`<p class="say">Ida finished long ago. The homework looks perfect.</p>
+        <div class="sys flat">Time: 2 minutes · Own thinking: almost none</div>
+        <p class="note">Nobody notices anything. Not even Ida.</p>`,
+      next:`<div class="chat"><div class="msg ida"><small>Ida</small>${F("8/12 + 3/12 = 11/12")}</div>
+        <div class="sys good">Correct! +12 TP</div>
+        <div class="msg mk"><small>Makker</small>But… isn't ${F("2/3 + 1/4 = 3/7")}? You add the tops and the bottoms, right?</div>
+        <div class="msg ida"><small>Ida</small>No! Then the pieces are different sizes. Cut the pizza into 12 first, then add.</div>
+        <div class="msg mk"><small>Makker</small>Oh! Now I get it.</div>
+        <div class="sys good">Taught it · +25 TP</div></div>` } },
+
+  { time:{nb:"18:00",en:"18:00"}, meter:[5,90], tp:43, mood:"happy",
+    nb:{ title:"Middag",
+      now:`<div class="chat"><div class="msg par"><small>Forelder</small>Hvordan var skolen i dag?</div>
+        <div class="msg ida"><small>Ida</small>Fint.</div></div>
+        <p class="note">Forelderen vet ikke at det fantes en brøkoppgave, eller at den ble kopiert.</p>`,
+      next:`<div class="phone"><small>Spør ved middagen</small><b>Ida forklarte fellesnevner i dag. Be henne vise deg med en pizza.</b></div>
+        <div class="chat"><div class="msg par"><small>Forelder</small>Vis meg med pizza, da!</div></div>
+        <div class="pizzarow"><div class="pizza" role="img" aria-label="Pizza delt i 12: 8 biter pluss 3 biter er 11 av 12"></div>
+          <div class="legend"><span><i style="background:var(--violet)"></i>${F("2/3 = 8/12")}</span><span><i style="background:var(--sun)"></i>${F("1/4 = 3/12")}</span><span>= ${F("11/12")}</span></div></div>` },
+    en:{ title:"Dinner",
+      now:`<div class="chat"><div class="msg par"><small>Parent</small>How was school today?</div>
+        <div class="msg ida"><small>Ida</small>Fine.</div></div>
+        <p class="note">The parent doesn't know there was a fractions task, or that it was copied.</p>`,
+      next:`<div class="phone"><small>Ask at dinner</small><b>Ida explained common denominators today. Ask her to show you with a pizza.</b></div>
+        <div class="chat"><div class="msg par"><small>Parent</small>Go on, show me with a pizza!</div></div>
+        <div class="pizzarow"><div class="pizza" role="img" aria-label="Pizza cut into 12: 8 slices plus 3 slices make 11 of 12"></div>
+          <div class="legend"><span><i style="background:var(--violet)"></i>${F("2/3 = 8/12")}</span><span><i style="background:var(--sun)"></i>${F("1/4 = 3/12")}</span><span>= ${F("11/12")}</span></div></div>` } },
+
+  { time:{nb:"Neste dag",en:"Next day"}, meter:[5,100], tp:43, mood:"happy",
+    nb:{ title:"Prøven",
+      now:`<div class="taskcard">${F("2/5 + 1/3 = ?")}</div>
+        <div class="chat"><div class="msg ida"><small>Ida</small>${F("3/8")}?</div>
+        <div class="sys bad">Feil. Og hun vet ikke hvorfor.</div></div>
+        <p class="note">Læreren ser riktig lekse og feil prøve, og får vite det først nå.</p>`,
+      next:`<div class="chat"><div class="msg pal"><small>Jonas, klassekamerat</small>Jeg skjønner ikke brøk.</div>
+        <div class="msg ida"><small>Ida</small>Gjør bitene like store først. Her blir det femtendedeler.</div></div>
+        <div class="taskcard">${F("2/5 + 1/3 = 11/15")}</div>
+        <div class="sys good">Riktig</div>
+        <p class="note">Læreren så i går at tre i 8B trodde «legg sammen oppe og nede», og tok det i timen.</p>` },
+    en:{ title:"The test",
+      now:`<div class="taskcard">${F("2/5 + 1/3 = ?")}</div>
+        <div class="chat"><div class="msg ida"><small>Ida</small>${F("3/8")}?</div>
+        <div class="sys bad">Wrong. And she doesn't know why.</div></div>
+        <p class="note">The teacher sees correct homework and a wrong test, and only finds out now.</p>`,
+      next:`<div class="chat"><div class="msg pal"><small>Jonas, classmate</small>I don't get fractions.</div>
+        <div class="msg ida"><small>Ida</small>Make the pieces the same size first. Here it's fifteenths.</div></div>
+        <div class="taskcard">${F("2/5 + 1/3 = 11/15")}</div>
+        <div class="sys good">Correct</div>
+        <p class="note">Yesterday the teacher saw that three pupils in 8B thought “add tops and bottoms”, and covered it in class.</p>` } }
+];
+
+/* ---------- Tilstand ---------- */
+let LANG = "nb";
+try{ const s = localStorage.getItem("tenkemakker-lang"); if(s==="nb"||s==="en") LANG = s; }catch(e){}
+const $ = id => document.getElementById(id);
+const tr = (k,...a) => { const v = STR[LANG][k]; return typeof v==="function" ? v(...a) : v; };
+const reduced = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+let step = 0, showAll = false;
+
+/* ---------- Del 1 ---------- */
+function renderStory(){
+  const times = $("times"); times.innerHTML = "";
+  MOMENTS.forEach((m,i)=>{
+    const li = document.createElement("li"), b = document.createElement("button");
+    b.type = "button"; b.textContent = m.time[LANG]; b.dataset.i = i;
+    b.addEventListener("click", ()=>{ if(showAll) setAll(false); go(i); });
+    li.append(b); times.append(li);
+  });
+  const rows = $("rows"); rows.innerHTML = "";
+  MOMENTS.forEach((m,i)=>{
+    const t = m[LANG], row = document.createElement("div");
+    row.className = "row"; row.dataset.i = i;
+    const card = (side, label, html, val) => `
+      <article class="card ${side}">
+        <div class="card-top"><span class="time num">${m.time[LANG]}</span><h4>${t.title}</h4><span class="tag">${label}</span></div>
+        ${html}
+        <div class="minimeter"><span>${tr("meter")}</span><span class="track"><i style="width:${val}%"></i></span><span class="num">${val} %</span></div>
+      </article>`;
+    row.innerHTML = card("now", tr("nowTitle"), t.now, m.meter[0]) + card("next", tr("nextTitle"), t.next, m.meter[1]);
+    rows.append(row);
+  });
+  update();
+}
+let lastTp = 0;
+function update(){
+  const s = showAll ? MOMENTS.length-1 : step, m = MOMENTS[s];
+  $("story").className = showAll ? "allmode" : "stepmode";
+  document.querySelectorAll("#rows .row").forEach(r=>r.classList.toggle("cur", +r.dataset.i===step));
+  document.querySelectorAll("#times button").forEach(b=>{
+    const i = +b.dataset.i;
+    if(i===step && !showAll) b.setAttribute("aria-current","step"); else b.removeAttribute("aria-current");
+    b.classList.toggle("past", i<step);
+  });
+  setMeter("now", m.meter[0]); setMeter("next", m.meter[1]);
+  countTo($("tp"), m.tp, v=>String(Math.round(v)));
+  const face = $("face"); face.className = "makker ico"; void face.offsetWidth; if(m.mood) face.classList.add(m.mood);
+  $("prev").disabled = showAll || step===0;
+  $("next").disabled = showAll || step===MOMENTS.length-1;
+  $("next").title = $("prev").title = tr("stepOf", step+1, MOMENTS.length);
+  $("all").setAttribute("aria-pressed", String(showAll));
+  $("all").textContent = showAll ? tr("showSteps") : tr("showAll");
+}
+function setMeter(side, v){
+  const tr_ = $("mt-"+side); tr_.querySelector("i").style.width = v+"%"; tr_.setAttribute("aria-valuenow", v);
+  tr_.setAttribute("aria-label", tr("meter"));
+  countTo($("m-"+side), v, x=>Math.round(x)+" %");
+}
+function go(i){ step = Math.max(0, Math.min(MOMENTS.length-1, i)); update(); }
+function setAll(on){ showAll = on; update(); }
+$("prev").addEventListener("click", ()=>go(step-1));
+$("next").addEventListener("click", ()=>go(step+1));
+$("all").addEventListener("click", ()=>setAll(!showAll));
+document.addEventListener("keydown", e=>{
+  const t = e.target; if(t && (t.tagName==="INPUT" || t.tagName==="TEXTAREA" || t.isContentEditable)) return;
+  if(e.altKey || e.ctrlKey || e.metaKey) return;
+  if(e.key==="ArrowRight"){ if(showAll) setAll(false); go(step+1); e.preventDefault(); }
+  else if(e.key==="ArrowLeft"){ if(showAll) setAll(false); go(step-1); e.preventDefault(); }
+});
+
+/* ---------- Tall-animasjon ---------- */
+const shown = new WeakMap();
+function countTo(el, target, fmt){
+  const from = shown.has(el) ? shown.get(el) : target;
+  shown.set(el, target);
+  if(el._raf) cancelAnimationFrame(el._raf);
+  if(reduced || from===target){ el.textContent = fmt(target); return; }
+  const t0 = performance.now(), dur = 650;
+  const tick = now => {
+    const p = Math.min(1, (now-t0)/dur), e = 1-Math.pow(1-p,3);
+    el.textContent = fmt(from + (target-from)*e);
+    if(p<1) el._raf = requestAnimationFrame(tick);
+  };
+  el._raf = requestAnimationFrame(tick);
+}
+
+/* ---------- Del 2: skala ---------- */
+const PRESETS = [24, 450, 25000, 90000];
+const MINP = 24, MAXP = 90000;
+const S = { pupils:450, share:60, min:30, gaps:[5,20,15] };
+const nf = () => new Intl.NumberFormat(LANG==="nb" ? "nb-NO" : "en-GB", {maximumFractionDigits:0});
+function nice(v){ // avrund til 2–3 gjeldende siffer for store tall
+  if(v < 1000) return Math.round(v);
+  const p = Math.pow(10, Math.floor(Math.log10(v)) - 2);
+  return Math.round(v/p)*p;
+}
+const fmt = v => nf().format(nice(v));
+const toSlider = n => Math.round(1000*Math.log(n/MINP)/Math.log(MAXP/MINP));
+const fromSlider = s => { const n = MINP*Math.pow(MAXP/MINP, s/1000); return n<100 ? Math.round(n) : n<1000 ? Math.round(n/10)*10 : Math.round(n/100)*100; };
+
+function renderPresets(){
+  const box = $("presets"); box.innerHTML = "";
+  PRESETS.forEach((n,i)=>{
+    const b = document.createElement("button"); b.type = "button";
+    b.textContent = `${tr("presets")[i]} · ${(i>=2?"~":"")}${nf().format(n)}`;
+    b.dataset.n = n;
+    b.addEventListener("click", ()=>{ S.pupils = n; $("s-pupils").value = toSlider(n); calc(); });
+    box.append(b);
+  });
+}
+function renderGaps(){
+  const box = $("gaps"); box.innerHTML = "";
+  tr("gaps").forEach((g,i)=>{
+    const d = document.createElement("div"); d.className = "gap";
+    d.innerHTML = `<span class="big num" id="g-n${i}">0</span>
+      <span class="lbl">${g.lbl}</span>
+      <div class="ctl"><div class="ctl-top"><label for="g-s${i}" style="font-weight:700;font-size:.85rem">${tr("gapSlider")}</label><output class="num" id="g-o${i}" style="font-size:1.2rem">${S.gaps[i]} %</output></div>
+      <input type="range" class="coral" id="g-s${i}" min="0" max="40" step="1" value="${S.gaps[i]}"></div>
+      <p class="so">${g.so}</p>`;
+    box.append(d);
+    d.querySelector("input").addEventListener("input", e=>{ S.gaps[i] = +e.target.value; calc(); });
+  });
+}
+function renderDots(){
+  const box = $("dots"); if(box.children.length) return;
+  for(let i=0;i<100;i++) box.append(document.createElement("i"));
+}
+function calc(){
+  const users = S.pupils * S.share/100;
+  const homeworkMin = users * S.min * 180;
+  const hours = homeworkMin * 0.6 / 60;
+  const perPupil = S.min * 180 * 0.6 / 60;
+  const expl = homeworkMin / 15;
+  const mis = expl * 0.1;
+  $("o-pupils").textContent = nf().format(S.pupils);
+  $("o-share").textContent = S.share + " %";
+  $("o-min").textContent = S.min + " min";
+  countTo($("r-hours"), hours, fmt);
+  countTo($("r-expl"), expl, fmt);
+  countTo($("r-mis"), mis, fmt);
+  $("r-hours-sub").textContent = tr("hoursSub", fmt(users), fmt(perPupil));
+  document.querySelectorAll("#presets button").forEach(b=>b.setAttribute("aria-pressed", String(+b.dataset.n===S.pupils)));
+  [...$("dots").children].forEach((d,i)=>d.classList.toggle("on", i < S.share));
+  const per = S.pupils/100;
+  const per1 = new Intl.NumberFormat(LANG==="nb"?"nb-NO":"en-GB",{maximumFractionDigits:1});
+  $("dotper").textContent = per<1 ? tr("dotPct") : tr("dotPer", per<10 ? per1.format(per) : fmt(per));
+  $("formula").innerHTML = tr("formula", {pupils:nf().format(S.pupils)}, S.min, S.share).map(x=>`<li>${x}</li>`).join("");
+  $("leftScale").textContent = tr("leftScale", nf().format(S.pupils));
+  S.gaps.forEach((g,i)=>{
+    countTo($("g-n"+i), S.pupils*g/100, fmt);
+    $("g-o"+i).textContent = g + " %";
+  });
+}
+$("s-pupils").addEventListener("input", e=>{ S.pupils = fromSlider(+e.target.value); calc(); });
+$("s-share").addEventListener("input", e=>{ S.share = +e.target.value; calc(); });
+$("s-min").addEventListener("input", e=>{ S.min = +e.target.value; calc(); });
+
+/* ---------- Språk og tema ---------- */
+function applyLang(){
+  document.documentElement.lang = LANG;
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ const v = STR[LANG][el.dataset.i18n]; if(typeof v==="string") el.textContent = v; });
+  document.querySelectorAll("[data-i18n-html]").forEach(el=>{ el.innerHTML = STR[LANG][el.dataset.i18nHtml]; });
+  document.querySelectorAll("[data-i18n-aria]").forEach(el=>el.setAttribute("aria-label", STR[LANG][el.dataset.i18nAria]));
+  document.querySelectorAll("[data-i18n-title]").forEach(el=>el.setAttribute("title", STR[LANG][el.dataset.i18nTitle]));
+  $("lang-nb").setAttribute("aria-pressed", String(LANG==="nb"));
+  $("lang-en").setAttribute("aria-pressed", String(LANG==="en"));
+  renderThemeBtn();
+  renderStory(); renderPresets(); renderGaps(); renderDots(); calc();
+}
+function setLang(l){ LANG = l; try{ localStorage.setItem("tenkemakker-lang", l); }catch(e){} applyLang(); }
+$("lang-nb").addEventListener("click", ()=>setLang("nb"));
+$("lang-en").addEventListener("click", ()=>setLang("en"));
+
+function isDark(){
+  const t = document.documentElement.dataset.theme;
+  if(t) return t==="dark";
+  return !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
+}
+function renderThemeBtn(){ const b = $("theme"); b.textContent = isDark() ? tr("themeLight") : tr("themeDark"); }
+try{ const t = localStorage.getItem("tenkemakker-vision-theme"); if(t==="light"||t==="dark") document.documentElement.dataset.theme = t; }catch(e){}
+$("theme").addEventListener("click", ()=>{
+  const t = isDark() ? "light" : "dark";
+  document.documentElement.dataset.theme = t;
+  try{ localStorage.setItem("tenkemakker-vision-theme", t); }catch(e){}
+  renderThemeBtn();
+});
+
+$("s-pupils").value = toSlider(S.pupils);
+applyLang();
+</script>
+</body>
+</html>
