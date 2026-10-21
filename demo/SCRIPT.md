@@ -43,3 +43,14 @@ python3 demo/pitch.py --url file:///path/to/index.html    # local file, no login
 
 The video is saved as `demo/out/tenkemakker-pitch-<lang>.webm` (and `.mp4` if ffmpeg is installed).
 Tip: the local file (practice mode) gives the most predictable video. The live site uses real Claude, so the words vary and replies can take a few seconds.
+
+## Voice-over and music (ElevenLabs)
+
+```bash
+export ELEVENLABS_API_KEY=...        # your own key, never committed
+python3 demo/voiceover.py            # tenkemakker-pitch-nb.mp4 -> tenkemakker-pitch-nb-voice.mp4
+python3 demo/voiceover.py --lang en
+python3 demo/voiceover.py --list-voices   # then --voice <voice_id>
+```
+
+One spoken line per beat (shortened versions of the lines above), placed on the beat's start second, plus 90 s of instrumental music that ducks under the voice. Audio is cached in `demo/voiceover-cache/`, so re-runs only re-mix.
