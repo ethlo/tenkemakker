@@ -297,6 +297,58 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
 .head-right{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .tabs.lang button{padding:8px 12px}
 .tabs.lang button[aria-pressed="true"]{background:var(--mint);color:#06352a}
+
+/* Lærer: oppsummering først, så detaljer. Tettere enn elevvisningen. */
+#view-laerer{display:flex;flex-direction:column;gap:16px}
+.t-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.t-mis li{background:var(--bg);border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+.t-mis li.max{box-shadow:inset 0 0 0 2px var(--coral)}
+.t-mis .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.t-mis .top b{font-family:var(--f-game);font-weight:400;font-size:1.1rem}
+.t-mis .n{font-family:var(--f-game);font-size:1.35rem;font-variant-numeric:tabular-nums;white-space:nowrap}
+.t-mis .n small{font-family:var(--f-body);font-size:.78rem;color:var(--muted);margin-left:4px}
+.t-mis p{margin:0;font-size:.9rem}
+.t-bar{height:10px;border-radius:5px;background:var(--line);overflow:hidden}
+.t-bar i{display:block;height:100%;border-radius:5px;background:var(--coral)}
+.pill-warn{display:inline-block;font-size:.72rem;font-weight:700;padding:2px 9px;border-radius:999px;background:var(--coral-soft);color:var(--ink);white-space:nowrap;border:1.5px solid var(--coral)}
+.t-help li{display:grid;grid-template-columns:34px minmax(0,1fr);gap:10px;align-items:start;padding:10px 12px;border-radius:16px;background:var(--bg)}
+.t-help li.me{background:var(--sun-soft)}
+.t-help .who{display:flex;flex-wrap:wrap;align-items:center;gap:6px 8px}
+.t-help .who b{font-size:1rem}
+.t-help .why{margin:2px 0 0;font-size:.85rem;color:var(--muted)}
+.t-help .act{margin:6px 0 0;font-size:.9rem;font-weight:700}
+.t-ava{width:34px;height:34px;border-radius:11px;display:grid;place-items:center;font-family:var(--f-game);color:var(--ink);flex:none}
+.t-scroll{overflow-x:auto;min-width:0}
+.t-grid{width:100%;border-collapse:separate;border-spacing:0 4px;font-size:.92rem}
+.t-grid th{font-size:.7rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700;text-align:center;padding:2px 6px}
+.t-grid th:first-child{text-align:left}
+.t-grid td{padding:5px 6px;text-align:center;background:var(--bg);vertical-align:middle}
+.t-grid td:first-child{text-align:left;border-radius:12px 0 0 12px}
+.t-grid td:last-child{border-radius:0 12px 12px 0}
+.t-grid tr.me td{background:var(--sun-soft);box-shadow:inset 0 2px 0 var(--sun),inset 0 -2px 0 var(--sun)}
+.t-grid tr.me td:first-child{box-shadow:inset 2px 2px 0 var(--sun),inset 0 -2px 0 var(--sun)}
+.t-grid tr.me td:last-child{box-shadow:inset -2px 2px 0 var(--sun),inset 0 -2px 0 var(--sun)}
+.t-grid tr.flash td{animation:flash .8s}
+.t-who{display:flex;align-items:center;gap:8px;font-weight:700;white-space:nowrap}
+.t-who .t-ava{width:26px;height:26px;border-radius:8px;font-size:.85rem}
+.t-who em{font-style:normal;font-size:.62rem;color:#fff;background:var(--violet);padding:1px 7px;border-radius:999px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+.t-cell{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:22px}
+.t-dot{width:18px;height:18px;border-radius:50%;display:inline-block;flex:none}
+.t-dot.empty{border:2px dashed var(--muted);opacity:.45}
+.t-dot.work{background:transparent!important;border:3px solid currentColor}
+.t-dot.stuck{border-radius:6px;background:var(--coral-soft);border:2px solid var(--coral);display:inline-grid;place-items:center;font-size:.7rem;font-weight:700;line-height:1;color:var(--ink)}
+.t-taught{color:var(--mint-dk);display:inline-flex}
+.legend .t-dot{width:12px;height:12px;margin-right:5px;vertical-align:-2px}
+.legend .t-dot.work{border-width:2px}
+.legend .t-dot.stuck{border-radius:3px;font-size:0}
+.legend .t-taught svg{margin-right:4px;vertical-align:-3px}
+@media (max-width:700px){
+  .t-grid{font-size:.88rem}
+  .t-grid th,.t-grid td{padding-inline:3px}
+  .t-grid th{font-size:.64rem;letter-spacing:.02em}
+  .t-who{gap:6px}
+  .t-who em{display:none}
+}
 </style>
 
 <canvas id="confetti" aria-hidden="true"></canvas>
@@ -312,6 +364,7 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
       <div class="tabs" id="toptabs" role="tablist">
         <button id="tab-elev" role="tab" aria-selected="true">Ida</button>
         <button id="tab-forelder" role="tab" aria-selected="false" data-i18n="tabParent">Forelder</button>
+        <button id="tab-laerer" role="tab" aria-selected="false" data-i18n="tabTeacher">Lærer</button>
       </div>
       <div class="tabs lang" role="group" aria-label="Språk / Language">
         <button id="lang-nb" type="button" aria-pressed="true" lang="nb" title="Norsk">NO</button>
@@ -453,11 +506,67 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
       </div>
     </div>
   </section>
+
+  <!-- LÆRER (oppdiktet klasse 8B, Idas rad er live) -->
+  <section id="view-laerer" hidden>
+    <div class="panel">
+      <div>
+        <p class="eyebrow" data-i18n="tEyebrow">Lærervisning · klasse 8B · i dag</p>
+        <h2 class="sec" data-i18n="tTitle">Slik tenker klassen i dag</h2>
+      </div>
+      <div class="big3">
+        <div><b id="t-active">0</b><span id="t-active-lbl"></span></div>
+        <div><b id="t-solved">0</b><span data-i18n="tSolved">oppgaver løst</span></div>
+        <div><b id="t-self">0 %</b><span data-i18n="tSelf">løst med 0 eller 1 hint</span></div>
+        <div><b id="t-taught">0</b><span data-i18n="tTaught">forklaringer til Makker</span></div>
+      </div>
+    </div>
+    <div class="grid">
+      <div class="panel">
+        <div>
+          <p class="eyebrow" data-i18n="tMisEyebrow">Typiske feil</p>
+          <h2 class="sec" data-i18n="tMisTitle">Misforståelser i dag</h2>
+        </div>
+        <ul class="t-list t-mis" id="t-mis"></ul>
+        <div class="starter">
+          <p class="eyebrow" data-i18n="tLesson">Start timen med</p>
+          <p id="t-lesson"></p>
+        </div>
+      </div>
+      <div class="panel">
+        <div>
+          <p class="eyebrow" data-i18n="tHelpEyebrow">Akkurat nå</p>
+          <h2 class="sec" data-i18n="tHelpTitle">Trenger hjelp nå</h2>
+        </div>
+        <ul class="t-list t-help" id="t-help"></ul>
+        <p class="fine" data-i18n="tHelpNote">Her vises elever som har brukt alle tre hint uten å løse oppgaven, eller som har jobbet lenge med den samme.</p>
+      </div>
+    </div>
+    <div class="panel">
+      <div>
+        <p class="eyebrow" data-i18n="tGridEyebrow">Hint brukt per oppgave</p>
+        <h2 class="sec" data-i18n="tGridTitle">Elevene</h2>
+      </div>
+      <div class="legend">
+        <span><i class="c0"></i><span data-i18n="lg0">Uten hint</span></span>
+        <span><i class="c1"></i><span data-i18n="lg1">Spørsmål</span></span>
+        <span><i class="c2"></i><span data-i18n="lg2">Tips</span></span>
+        <span><i class="c3"></i><span data-i18n="lg3">Eksempel</span></span>
+        <span><span class="t-dot work" style="color:var(--violet)"></span><span data-i18n="tLgWork">Jobber nå</span></span>
+        <span><span class="t-dot stuck"></span><span data-i18n="tLgStuck">Står fast</span></span>
+        <span><span class="t-dot empty"></span><span data-i18n="tLgEmpty">Ikke startet</span></span>
+        <span class="t-taught"><svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M2 3h12v8H7l-3 3v-3H2z" fill="currentColor"/></svg><span data-i18n="tLgTaught" style="color:var(--muted)">Lærte bort til Makker</span></span>
+      </div>
+      <div class="t-scroll"><table class="t-grid" id="t-grid"></table></div>
+    </div>
+    <p class="fine" data-i18n="tPrivacy">Læreren ser mønstre og sammendrag, ikke samtalene elevene har med Makker. Alle elever og tall her er oppdiktet.</p>
+  </section>
 </div>
 <nav class="bottomnav" data-i18n-aria="navAria" aria-label="Visninger">
   <button type="button" data-v="elev" aria-current="page"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 4h14v16H5zM9 9h6M9 13h6" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span data-i18n="navTask">Oppgave</span></button>
   <button type="button" data-v="klasse"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path d="M5 20v-6M12 20V6M19 20v-9" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round"/></svg><span data-i18n="navClass">Klassen</span></button>
   <button type="button" data-v="forelder"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="17" cy="10" r="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M15 20c0-2 1-4 3-4s3 2 3 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span data-i18n="navParent">Forelder</span></button>
+  <button type="button" data-v="laerer"><svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><rect x="3" y="4" width="18" height="12" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M7 8.5h7M7 12h4M9 20l3-4 3 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span data-i18n="navTeacher">Lærer</span></button>
 </nav>
 
 <script>
@@ -541,7 +650,34 @@ const STR = {
     srLangs:[["nb-NO","Norsk (nb-NO)"],["no-NO","Norsk (no-NO)"],["nn-NO","Nynorsk (nn-NO)"]],
     today:"I dag", liveTag:"Live", solvedStat:"Løst", taughtStat:"Forklart",
     noTasksYet:"Ingen oppgaver ennå i dag.",
-    defaultStarter:"Ida forklarte gjennomsnitt til Makker på onsdag. Spør henne hva som er gjennomsnittlig leggetid i familien deres."
+    defaultStarter:"Ida forklarte gjennomsnitt til Makker på onsdag. Spør henne hva som er gjennomsnittlig leggetid i familien deres.",
+    // Lærervisning
+    tabTeacher:"Lærer", navTeacher:"Lærer",
+    tEyebrow:"Lærervisning · klasse 8B · i dag", tTitle:"Slik tenker klassen i dag",
+    tActive:n=>`av ${n} elever er i gang i dag`,
+    tSolved:"oppgaver løst", tSelf:"løst med 0 eller 1 hint", tTaught:"forklaringer til Makker",
+    tMisEyebrow:"Typiske feil", tMisTitle:"Misforståelser i dag",
+    tOf:n=>`av ${n} som har prøvd`, tBiggest:"Størst",
+    tMis:["La sammen tellerne og nevnerne hver for seg: 2/3 + 1/4 = 3/7.",
+          "Trakk fra 25 kr i stedet for 25 %, og fikk 775 kr.",
+          "Glemte å dele på 3 og svarte x = 15."],
+    tLesson:"Start timen med",
+    tLessonFor:["La elevene forklare hverandre i par hvorfor 2/3 + 1/4 ikke kan bli 3/7. Et spor: er 3/7 større eller mindre enn 2/3 alene?",
+                "Vis et salgsskilt med «25 % av». La parene finne ut hvorfor 25 % av 800 kr ikke er 25 kr.",
+                "Skriv 3x = 15 på tavla. La parene forklare hva 3x betyr før noen regner videre."],
+    tHelpEyebrow:"Akkurat nå", tHelpTitle:"Trenger hjelp nå",
+    tHelpNote:"Her vises elever som har brukt alle tre hint uten å løse oppgaven, eller som har jobbet lenge med den samme.",
+    tStuck3:topic=>`Har brukt alle tre hint på ${topic.toLowerCase()}, ikke løst ennå`,
+    tLong:topic=>`Har jobbet lenge med ${topic.toLowerCase()}`,
+    tMin:m=>`${m} min`, tNow:"nå", tPillStuck:"Står fast", tPillLong:"Lenge",
+    tActSit:"Sett deg ved siden av et par minutter. Spør: «Hva har du prøvd så langt?»",
+    tActPair:(b,topic)=>`Sett sammen med ${b}, som forklarte ${topic.toLowerCase()} til Makker i dag.`,
+    tNoHelp:"Ingen står fast akkurat nå.",
+    tGridEyebrow:"Hint brukt per oppgave", tGridTitle:"Elevene", tPupil:"Elev",
+    tLgWork:"Jobber nå", tLgStuck:"Står fast", tLgEmpty:"Ikke startet", tLgTaught:"Lærte bort til Makker",
+    tCell:(name,topic,state)=>`${name}, ${topic}: ${state}`,
+    tStateEmpty:"ikke startet", tStateWork:"jobber nå", tStateStuck:"står fast", tStateTaught:", lærte bort til Makker",
+    tPrivacy:"Læreren ser mønstre og sammendrag, ikke samtalene elevene har med Makker. Alle elever og tall her er oppdiktet."
   },
   en:{
     topicTitle:"Practise anything", newTopic:"+ New topic", topicPh:"What do you want to practise? E.g. “area of a circle”", makeTask:"Make task",
@@ -619,7 +755,34 @@ const STR = {
     srLangs:[["en-GB","English (en-GB)"],["en-US","English (en-US)"]],
     today:"Today", liveTag:"Live", solvedStat:"Solved", taughtStat:"Explained",
     noTasksYet:"No tasks yet today.",
-    defaultStarter:"Ida explained averages to Makker on Wednesday. Ask her what the average bedtime is in your family."
+    defaultStarter:"Ida explained averages to Makker on Wednesday. Ask her what the average bedtime is in your family.",
+    // Teacher view
+    tabTeacher:"Teacher", navTeacher:"Teacher",
+    tEyebrow:"Teacher view · class 8B · today", tTitle:"How the class is thinking today",
+    tActive:n=>`of ${n} pupils have started today`,
+    tSolved:"tasks solved", tSelf:"solved with 0 or 1 hint", tTaught:"explanations to Makker",
+    tMisEyebrow:"Typical mistakes", tMisTitle:"Misconceptions today",
+    tOf:n=>`of ${n} who tried`, tBiggest:"Biggest",
+    tMis:["Added the tops and the bottoms separately: 2/3 + 1/4 = 3/7.",
+          "Took off 25 kr instead of 25 %, and got 775 kr.",
+          "Forgot to divide by 3 and answered x = 15."],
+    tLesson:"Start the lesson with",
+    tLessonFor:["Have pupils explain to each other in pairs why 2/3 + 1/4 can't be 3/7. A clue: is 3/7 bigger or smaller than 2/3 on its own?",
+                "Show a sale sign that says “25 % off”. Let pairs work out why 25 % of 800 kr isn't 25 kr.",
+                "Write 3x = 15 on the board. Let pairs explain what 3x means before anyone works it out."],
+    tHelpEyebrow:"Right now", tHelpTitle:"Needs help now",
+    tHelpNote:"Shows pupils who used all three hints without solving the task, or who have been on the same one for a long time.",
+    tStuck3:topic=>`Used all three hints on ${topic.toLowerCase()}, not solved yet`,
+    tLong:topic=>`Has been on ${topic.toLowerCase()} for a long time`,
+    tMin:m=>`${m} min`, tNow:"now", tPillStuck:"Stuck", tPillLong:"Long",
+    tActSit:"Sit down next to them for a couple of minutes. Ask: “What have you tried so far?”",
+    tActPair:(b,topic)=>`Pair up with ${b}, who explained ${topic.toLowerCase()} to Makker today.`,
+    tNoHelp:"Nobody is stuck right now.",
+    tGridEyebrow:"Hints used per task", tGridTitle:"Pupils", tPupil:"Pupil",
+    tLgWork:"Working now", tLgStuck:"Stuck", tLgEmpty:"Not started", tLgTaught:"Taught Makker",
+    tCell:(name,topic,state)=>`${name}, ${topic}: ${state}`,
+    tStateEmpty:"not started", tStateWork:"working now", tStateStuck:"stuck", tStateTaught:", taught Makker",
+    tPrivacy:"The teacher sees patterns and summaries, not the conversations pupils have with Makker. All pupils and numbers here are made up."
   }
 };
 let LANG = "nb";
@@ -741,12 +904,16 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 // ---------- Faner ----------
 function showTab(which){
   document.body.dataset.view = which;
-  $("tab-elev").setAttribute("aria-selected", which!=="forelder");
+  const other = which==="forelder" || which==="laerer";
+  $("tab-elev").setAttribute("aria-selected", !other);
   $("tab-forelder").setAttribute("aria-selected", which==="forelder");
-  $("view-elev").hidden = which==="forelder";
+  $("tab-laerer").setAttribute("aria-selected", which==="laerer");
+  $("view-elev").hidden = other;
   $("view-forelder").hidden = which!=="forelder";
+  $("view-laerer").hidden = which!=="laerer";
   document.querySelectorAll(".bottomnav button").forEach(b=>{ if(b.dataset.v===which) b.setAttribute("aria-current","page"); else b.removeAttribute("aria-current"); });
   if(which==="forelder") renderParent();
+  if(which==="laerer") renderTeacher();
   if(which==="klasse" && !isMobile()) $("lower").scrollIntoView({behavior:"smooth"});
   else window.scrollTo({top:0});
 }
@@ -755,6 +922,7 @@ document.querySelectorAll(".bottomnav button").forEach(b=> b.onclick = () => sho
 document.body.dataset.view = "elev";
 $("tab-elev").onclick = () => showTab("elev");
 $("tab-forelder").onclick = () => showTab("forelder");
+$("tab-laerer").onclick = () => showTab("laerer");
 
 // ---------- Poeng, nivå, streak ----------
 function levelName(lv){ const L = tr("levels"); return L[Math.min(lv-1, L.length-1)]; }
@@ -1414,6 +1582,141 @@ function renderParent(){
   $("starter").textContent = last ? task(last.i).starter : tr("defaultStarter");
 }
 
+// ---------- Lærer ----------
+// Oppdiktet klasse 8B (23 + Ida = 24). Seedet tilfeldighet, så tallene er like ved hver lasting.
+// Bare de tre første oppgavene vises (de har kjente misforståelser). Idas rad bygges live fra S.
+const T_NAMES = ["Aisha","Amir","Ella","Elias","Emil","Emma","Filip","Henrik","Ingrid","Jakob","Jonas","Leah",
+  "Liv","Lukas","Maja","Mathias","Noah","Nora","Olav","Oskar","Sara","Sofie","Thea"];
+const T_COLS = ["--violet-soft","--mint-soft","--coral-soft","--sun-soft"];
+const T_LV = ["--mint","--violet","--sun","--coral"];   // samme farger som c0..c3
+const T_N = 3;
+const T_MIS_ANS = [["3/7"],["775","775kr","kr775"],["15","x=15"]];  // svaret misforståelsen gir
+function tRand(seed){ return function(){ seed|=0; seed=seed+0x6D2B79F5|0; let t=Math.imul(seed^seed>>>15,1|seed); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+const T_CLASS = (()=>{
+  const r = tRand(843);                // uke 43, 8B
+  const MIS_P = [.6,.45,.35];          // hvor vanlig hver misforståelse er
+  const list = T_NAMES.map((name,k)=>{
+    const skill = r(), cells = [null,null,null];
+    if(r() < .9){
+      const n = 1 + Math.floor(r()*T_N);
+      for(let t=0;t<n;t++){
+        const lv = Math.max(0, Math.min(3, Math.floor((1-skill)*3 + r()*1.6 - .3)));
+        const mis = r() < MIS_P[t]*(1.25-skill);
+        const open = t===n-1 && r() < .3;     // siste oppgave er ikke ferdig ennå
+        cells[t] = open ? {lv, solved:false, mis, mins:3+Math.floor(r()*14)}
+                        : {lv, solved:true, mis, taught:r() < .7};
+      }
+    }
+    return {name, c:T_COLS[k%4], cells};
+  });
+  // To som står fast, så "Trenger hjelp nå" alltid har noe å vise
+  const set = (name,cells) => { list.find(p=>p.name===name).cells = cells; };
+  set("Filip", [{lv:3, solved:false, mis:true, mins:18}, null, null]);
+  set("Leah",  [{lv:1, solved:true, mis:false, taught:true}, {lv:2, solved:true, mis:true, taught:false}, {lv:3, solved:false, mis:true, mins:12}]);
+  set("Sofie", [{lv:0, solved:true, mis:false, taught:true}, {lv:1, solved:true, mis:false, taught:true}, null]);
+  return list;
+})();
+// Idas typiske feil og forsøk registreres ved siden av (endrer ikke oppgavelogikken)
+const T_IDA = {tried:[false,false,false], mis:[false,false,false]};
+$("answer-form").addEventListener("submit", () => {
+  const k = S.i; if(k >= T_N) return;
+  const v = norm($("answer").value); if(!v) return;
+  T_IDA.tried[k] = true;
+  if(T_MIS_ANS[k].includes(v)) T_IDA.mis[k] = true;
+});
+function idaRow(){
+  const cells = [0,1,2].map(k=>{
+    const taught = S.said.some(s=>s.i===k);
+    if(k < S.today.length) return {lv:S.today[k], solved:true, mis:T_IDA.mis[k], taught};
+    if(k===S.i && (S.hint>0 || T_IDA.tried[k])) return {lv:S.hint, solved:false, mis:T_IDA.mis[k], mins:0, live:true};
+    return null;
+  });
+  return {name:"Ida", c:"--sun", cells, me:true};
+}
+const tTopic = k => task(k).topic;
+function renderTeacher(){
+  const ida = idaRow();
+  const all = T_CLASS.concat([ida]).sort((a,b)=>a.name.localeCompare(b.name, "nb"));
+  const total = all.length;
+  // Oppsummering
+  const active = all.filter(p=>p.cells.some(Boolean)).length;
+  const solved = all.flatMap(p=>p.cells.filter(c=>c && c.solved));
+  $("t-active").textContent = active;
+  $("t-active-lbl").textContent = tr("tActive", total);
+  $("t-solved").textContent = solved.length;
+  $("t-self").textContent = solved.length ? Math.round(solved.filter(c=>c.lv<=1).length/solved.length*100)+" %" : "0 %";
+  $("t-taught").textContent = solved.filter(c=>c.taught).length;
+  // Misforståelser per oppgave
+  const mis = [0,1,2].map(k=>{ const tried = all.filter(p=>p.cells[k]); return {k, n:tried.filter(p=>p.cells[k].mis).length, of:tried.length}; });
+  // Størst = flest elever berørt (ikke andel, som blir misvisende når få har prøvd)
+  const top = mis.reduce((a,b)=> (b.n > a.n ? b : a));
+  const M = $("t-mis"); M.innerHTML = "";
+  mis.forEach(m=>{
+    const li = el("li", m===top ? "max" : "");
+    const head = el("div","top");
+    const h = el("b",null,tTopic(m.k));
+    if(m===top){ h.append(" "); h.append(el("span","pill-warn",tr("tBiggest"))); }
+    const n = el("span","n",String(m.n)); n.append(el("small",null,tr("tOf", m.of)));
+    head.append(h, n);
+    const bar = el("div","t-bar"); const i = el("i"); i.style.width = (m.of ? m.n/m.of*100 : 0) + "%"; bar.append(i);
+    bar.setAttribute("role","img"); bar.setAttribute("aria-label", m.n + " / " + m.of);
+    li.append(head, bar, el("p",null,tr("tMis")[m.k]));
+    M.append(li);
+  });
+  $("t-lesson").textContent = tr("tLessonFor")[top.k];
+  // Trenger hjelp nå: alle hint brukt uten å løse, eller lenge på samme oppgave
+  const need = [];
+  all.forEach(p=>p.cells.forEach((c,k)=>{
+    if(!c || c.solved) return;
+    if(c.lv===3 || c.mins>=10) need.push({p, k, c, stuck:c.lv===3});
+  }));
+  need.sort((a,b)=> (!!b.p.me - !!a.p.me) || (b.stuck-a.stuck) || (b.c.mins-a.c.mins));
+  const H = $("t-help"); H.innerHTML = "";
+  need.slice(0,4).forEach((x,idx)=>{
+    const li = el("li", x.p.me ? "me" : "");
+    const a = el("div","t-ava",x.p.name[0]); a.style.background = `var(${x.p.c})`;
+    const body = el("div");
+    const who = el("div","who"); who.append(el("b",null,x.p.name));
+    who.append(el("span","pill-warn",(x.stuck ? tr("tPillStuck") : tr("tPillLong")) + " · " + (x.c.live ? tr("tNow") : tr("tMin", x.c.mins))));
+    body.append(who, el("p","why",x.stuck ? tr("tStuck3", tTopic(x.k)) : tr("tLong", tTopic(x.k))));
+    // Forslag: makker som forklarte samme tema i dag, ellers sett deg ved siden av
+    const buddy = idx>0 && all.find(q=>q!==x.p && !q.me && q.cells[x.k] && q.cells[x.k].solved && q.cells[x.k].taught && q.cells[x.k].lv<=1);
+    body.append(el("p","act", buddy ? tr("tActPair", buddy.name, tTopic(x.k)) : tr("tActSit")));
+    li.append(a, body); H.append(li);
+  });
+  if(!need.length) H.append(el("li",null,tr("tNoHelp")));
+  // Elevrutenett
+  const G = $("t-grid"); G.innerHTML = "";
+  const thead = el("thead"), hr = el("tr");
+  hr.append(el("th",null,tr("tPupil")));
+  [0,1,2].forEach(k=>{ const th = el("th",null,tTopic(k)); th.scope = "col"; hr.append(th); });
+  hr.firstChild.scope = "col";
+  thead.append(hr); G.append(thead);
+  const tb = el("tbody");
+  all.forEach(p=>{
+    const tr_ = el("tr", p.me ? "me" : "");
+    const who = el("td"); const w = el("div","t-who");
+    const a = el("span","t-ava",p.name[0]); a.style.background = `var(${p.c})`;
+    w.append(a, el("span",null,p.name)); if(p.me) w.append(el("em",null,tr("liveTag")));
+    who.append(w); tr_.append(who);
+    p.cells.forEach((c,k)=>{
+      const td = el("td"), cell = el("span","t-cell");
+      let dot, state;
+      if(!c){ dot = el("span","t-dot empty"); state = tr("tStateEmpty"); }
+      else if(!c.solved && c.lv===3){ dot = el("span","t-dot stuck","!"); state = tr("tStateStuck"); }
+      else if(!c.solved){ dot = el("span","t-dot work"); dot.style.color = `var(${T_LV[c.lv]})`; state = tr("tStateWork"); }
+      else { dot = el("span","t-dot c"+c.lv); state = tr("lg"+c.lv) + (c.taught ? tr("tStateTaught") : ""); }
+      dot.setAttribute("aria-hidden","true");
+      cell.append(dot);
+      if(c && c.taught){ const m = el("span","t-taught"); m.innerHTML = '<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M2 3h12v8H7l-3 3v-3H2z" fill="currentColor"/></svg>'; cell.append(m); }
+      cell.append(el("span","sr",tr("tCell", p.name, tTopic(k), state)));
+      td.append(cell); tr_.append(td);
+    });
+    tb.append(tr_);
+  });
+  G.append(tb);
+}
+
 // ---------- Bytt språk ----------
 function applyLang(regreet){
   document.documentElement.lang = LANG;
@@ -1430,6 +1733,7 @@ function applyLang(regreet){
   $("mic-label").textContent = tr(listening ? "stop" : "talk"); micNote("");
   if(!$("teach").hidden){ if(S.mode==="hint" && !S.solved) hintChips(); else if(S.teaching) teachChips(); }
   if(!$("view-forelder").hidden) renderParent();
+  if(!$("view-laerer").hidden) renderTeacher();
   // Har Ida ikke begynt på oppgaven ennå, hilser Makker på nytt på det nye språket.
   // Ellers står samtalen som den er, og Makker fortsetter på det nye språket.
   if(regreet && S.mode===null && !S.solved){ $("chat").innerHTML=""; greet(); }
