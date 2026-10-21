@@ -76,7 +76,7 @@ Single file `index.html`. Three tasks (fractions, percent, equations), each with
 - Speech recognition and real Claude don't work in the same place yet (local file vs artifact).
 - Linux laptops usually lack a Norwegian TTS voice → Makker is silent there. Demo on a Mac if voice-out matters.
 - Scripted mode can be gamed (say a keyword, get the "aha").
-- Only 3 math tasks; no teacher view; no persistence between sessions.
+- Only 3 math tasks; no persistence between sessions. Teacher view uses made-up class data (only Ida's row is live).
 
 ## 6. Out of scope today
 
@@ -122,3 +122,4 @@ Browser ──▶ Cloudflare Access (email login, one-time code)
 - **v2.3** (12:00): voice input off by default (opt-in with warning), read-aloud on-device only; badge "Snakket ut" replaced by "Krystallklar" (Makker understood on first explanation).
 - **v2.4** (12:05): press-and-hold to talk (hold the mic, release to send; works with mouse, touch and keyboard). Voice still opt-in.
 - **v2.5** (12:25): English alongside Norwegian bokmål (by Celina, PR #1, ported onto v2.4): NO/EN toggle; tasks, hints, Makker (scripted, artifact Claude and Cloudflare Worker), badges, class board, parent card, quick replies and voice texts translated.
+- **v2.6**: teacher view (tab Lærer / Teacher, 4th item in the phone menu): class 8B summary, misconceptions per task with a "start the lesson with" suggestion, who needs help now with a suggested action, pupil grid of hints used per task (Ida live). Teacher sees patterns, not conversations. 23 fictional classmates from a seeded generator.
