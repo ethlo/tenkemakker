@@ -46,3 +46,15 @@ og hva som fortsatt er uavklart. Bekreft at PR #5 er innlemmet før denne
 endringen innlemmes. Kontroller Worker-versjon og HTML hver for seg; test
 innlogget visning etter publisering. Main-push oppdaterer nettstedets HTML.
 Ved behov kan HTML-commit tilbakeføres; KI-kontrakten er uendret.
+
+## Kort kontroll på utprøvingsdagen
+
+- Åpne den lokale filen i en ny økt og velg Brøkverksted. Kontroller at det står
+  Øvingsmodus i forklaringssteget. Pilotopplegget er ikke en prøve av live KI.
+- Lytt til oppgave og hint på den aktuelle enheten. Test stopp og les igjen;
+  bruk synlig tekst hvis stemmen ikke er tilgjengelig eller forståelig.
+- Prøv de større «Velg del» / «Marker / fjern»-kontrollene på telefon/nettbrett.
+- Øktnotatet inneholder skrevne forklaringer. Bruk ikke navn eller personlige
+  opplysninger i feltene, og last bare ned notatet hvis det trengs for utprøvingen.
+- Noter voksenhjelp separat: «uten støtte i verkstedet» betyr bare at appens
+  faglige støtte ikke var åpnet før det riktige svaret.

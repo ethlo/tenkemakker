@@ -50,3 +50,16 @@ immutable per-attempt support, independent transfer, unresolved progression, ver
 It uses both UI languages at 390px dark and desktop light. `TEST_SCREENSHOTS` also
 captures model and print previews. Speech adapters exercise browser UI behavior;
 they do not establish audible quality or an installed system voice.
+
+Pre-pilot audit regressions:
+
+```sh
+node tests/fraction-pilot-audit.cjs
+```
+
+94 checks cover pending versus applied denominators, preservation on repeated
+apply, return to original partitions, exact-piece selection with larger controls,
+unchanged quantity colors, final-hint focus, per-hint speech, draft/export notices,
+summary-audio isolation, empty/oversized replies, and focus/caret/scroll preservation
+for delayed replies (model, navigation and chat). Both languages and mobile themes
+are exercised. Speech and model replies are adapters; no pupil or live model data.

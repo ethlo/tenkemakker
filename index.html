@@ -387,7 +387,7 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
 .f-strip-row{display:grid;grid-template-columns:36px minmax(0,1fr);gap:8px;align-items:center}.f-strip-label{font-weight:700}.f-whole{grid-column:2;text-align:right;font-size:.75rem;color:var(--muted)}
 .f-strip{display:grid;grid-template-columns:repeat(var(--pieces),minmax(0,1fr));border:2px solid var(--ink);border-radius:8px;overflow:hidden;height:64px}
 .f-piece{border:0;border-right:1px solid var(--ink);background:var(--bg);padding:0;color:var(--ink);font-weight:700;font-size:1.4rem;cursor:pointer;min-width:0}
-.f-piece:last-child{border-right:0}.f-piece.filled{background:var(--violet)}.f-piece.filled.second{background:var(--mint)}.f-piece[aria-pressed=true]{box-shadow:inset 0 0 0 3px var(--sun);color:#fff}
+.f-piece:last-child{border-right:0}.f-piece.filled{background:var(--violet)}.f-piece.filled.second{background:var(--mint)}.f-piece[aria-pressed=true]{box-shadow:inset 0 0 0 3px var(--sun);color:var(--ink)}
 .f-piece:focus-visible{outline:3px solid var(--sun);outline-offset:-4px}.f-line{display:block;width:100%;height:auto}
 .f-question{padding-left:12px;border-left:3px solid var(--mint);font-weight:700}
 .f-text-button{background:none;border:0;color:var(--violet);font-weight:700;text-decoration:underline;text-underline-offset:3px;padding:8px;cursor:pointer}
@@ -423,6 +423,13 @@ h2.sec{font-family:var(--f-game);font-weight:400;font-size:1.4rem;margin:0;lette
  body.f-printing #f-print-page *{color:#000;background:#fff}
  body.f-printing #f-print-page button{display:none}
 }
+
+.f-piece-tools{grid-column:2;display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:4px 0 12px}
+.f-piece-tools label{flex-basis:100%;font-size:.9rem}
+.f-piece-tools select{min-width:90px;min-height:44px;font:inherit;padding:8px;border:2px solid var(--line);border-radius:8px;color:var(--ink);background:var(--bg)}
+.f-piece-tools .btn{min-height:44px;font-size:.9rem}
+.f-piece[aria-pressed=true].filled{color:#fff}
+.f-piece[aria-pressed=true].filled.second{color:#1e1748}
 
 </style>
 
@@ -988,6 +995,7 @@ const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // ---------- Faner ----------
 function showTab(which){
+  if(document.body.dataset.view==="brok" && which!=="brok"){try{speechSynthesis.cancel();}catch(e){}document.querySelector(".f-buddy")?.classList.remove("talking");}
   document.body.dataset.view = which;
   const other = which==="forelder" || which==="laerer" || which==="brok";
   $("tab-elev").setAttribute("aria-selected", !other);
@@ -1911,7 +1919,7 @@ Object.assign(STR.nb, {
  fReps:['Brøkstriper','Tallinje','Symboler'], fSameWhole:'Begge viser én like stor helhet.',
  fEqualize:'Del begge i like store deler', fOriginal:'Vis de opprinnelige delene',
  fModelQuestion:'Hva er likt nå, og hva har endret seg? Finn summen selv.', fOne:'én hel',
- fSymbolQuestion:'Skriv hver brøk med nevneren du valgte. Hva må skje med både teller og nevner?',
+ fSymbolQuestion:n=>`Skriv hver brøk med nevner ${n}, slik modellen viser. Hva må skje med både teller og nevner?`,
  fNum:'Ny teller for', fCheckParts:'Sjekk omskrivingen', fPartsRight:'Begge omskrivingene stemmer. Hva forteller tellerne nå?',
  fPartsWrong:'Se på én brøk om gangen. Ganger du teller og nevner med samme tall?',
  fHint:'Et lite hint', fHintCount:n=>`Hint ${n} av 3`, fNoHints:'Alle tre hint er åpnet',
@@ -1934,7 +1942,7 @@ Object.assign(STR.nb, {
  fSummaryNote:'Dette viser aktivitet i denne økten. Det fastslår ikke læring eller en læringsstil.',
  fFirstTask:'Første oppgave', fSecondTask:'Ny oppgave', fSolved:'Riktig sum funnet', fNotYet:'Ikke fullført',
  fUsed:'Fremstillinger åpnet', fNone:'Ingen', fAttempts:'Svarforsøk', fHints:'Hint åpnet',
- fExplanationSaved:'Forklaring skrevet', fExplanationNone:'Ingen forklaring skrevet',
+ fExplanationSaved:'Forklaring sendt', fExplanationNone:'Ingen forklaring sendt',
  fObserved:'Forklaringen er ikke vurdert av en lærer. Modeller og hint kan ha støttet løsningen.',
  fLater:'Prøv igjen en annen dag', fLaterText:'Gi en ny brøkoppgave med andre tall. Se hva eleven gjør før hjelp, og noter eventuell øving siden sist.',
  fDinner:'Spør ved middagen', fDinnerText:'Hvorfor må bitene være like store når vi legger sammen brøker? Kan du vise meg?',
@@ -1963,7 +1971,7 @@ Object.assign(STR.en, {
  fReps:['Fraction strips','Number line','Symbols'], fSameWhole:'Both represent one whole of the same size.',
  fEqualize:'Split both into equal-sized pieces', fOriginal:'Show the original pieces',
  fModelQuestion:'What is the same now, and what changed? Find the sum yourself.', fOne:'one whole',
- fSymbolQuestion:'Write each fraction with your chosen denominator. What must happen to both numerator and denominator?',
+ fSymbolQuestion:n=>`Write each fraction with denominator ${n}, as shown in the model. What must happen to both numerator and denominator?`,
  fNum:'New numerator for', fCheckParts:'Check the equivalents', fPartsRight:'Both equivalent fractions are correct. What do the numerators tell you now?',
  fPartsWrong:'Look at one fraction at a time. Are you multiplying numerator and denominator by the same number?',
  fHint:'A little hint', fHintCount:n=>`Hint ${n} of 3`, fNoHints:'All three hints are open',
@@ -1986,7 +1994,7 @@ Object.assign(STR.en, {
  fSummaryNote:'This shows activity in this session. It does not establish learning or a learning style.',
  fFirstTask:'First problem', fSecondTask:'New problem', fSolved:'Correct sum found', fNotYet:'Not completed',
  fUsed:'Representations opened', fNone:'None', fAttempts:'Answer attempts', fHints:'Hints opened',
- fExplanationSaved:'Explanation written', fExplanationNone:'No explanation written',
+ fExplanationSaved:'Explanation submitted', fExplanationNone:'No explanation submitted',
  fObserved:'A teacher has not assessed the explanation. Models and hints may have supported the solution.',
  fLater:'Try again another day', fLaterText:'Give a new fraction problem with different numbers. Observe what the learner does before help, and note any practice since this session.',
  fDinner:'Ask at dinner', fDinnerText:'Why must the pieces be equal-sized when we add fractions? Can you show me?',
@@ -2009,8 +2017,8 @@ Object.assign(STR.nb, {
  fDenValid:n=>`Hver helhet er nå delt i ${n} like store deler. Mengdene er uendret.`,
  fChooseDen:'Velg en fellesnevner før du skriver de nye tellerne.', fUnresolved:'Avsluttet uten avklart løsning',
  fSkip:'Gå videre uten løsning', fSkipExplanation:'Gå videre uten forklaring',
- fSupported:'Riktig sum etter bruk av støtte', fUnaided:'Riktig sum uten åpnet faglig støtte',
- fDenUsed:'Fellesnevner valgt', fAttempt:n=>`Forsøk ${n}`, fSupport:'Støtte brukt før svaret',
+ fSupported:'Riktig sum etter bruk av støtte', fUnaided:'Riktig sum uten åpnet støtte i verkstedet',
+ fDenUsed:'Fellesnevner i modellen', fAttempt:n=>`Forsøk ${n}`, fSupport:'Støtte brukt før svaret',
  fReadTask:'Les opp oppgaven', fReadInstruction:'Les opp veiledningen', fReadReply:'Les opp oppfølgingsspørsmålet',
  fStop:'Stopp opplesning', fStopped:'Opplesningen er stoppet.',
  fInstruction:'Prøv først selv. Du kan åpne modellen eller et hint når du vil.',
@@ -2019,7 +2027,12 @@ Object.assign(STR.nb, {
  fFollowupGuide:'Voksen: Be eleven vise hvorfor mengden bevares. Noter hva eleven gjør før hjelp, hvilken hjelp som gis, og eventuell øving siden sist. Bruk ingen navn.',
  fFollowupBefore:'Før hjelp: svar og forklaring', fFollowupHelp:'Hjelp og tidligere øving',
  fFollowupAfter:'Etter hjelp: svar og forklaring', fPrintNote:'Dette arket fylles ut manuelt og sendes ikke til plattformen.',
- fReadSupport:'Opplesning valgt', fReadOtherLanguage:'Dette svaret er på et annet språk. Bytt språk for å lese det opp.',
+ fDenPending:n=>`Modellen viser fortsatt ${n} deler per helhet. Trykk «Prøv inndelingen» for å bruke det nye valget.`,
+ fDenPendingOriginal:'Modellen viser de opprinnelige delene. Trykk «Prøv inndelingen» for å bruke valget ditt.',
+ fPieceNumber:(i,n)=>`${i} av ${n}`, fPieceChoice:(a,b)=>`Velg del i ${a}/${b}`, fTogglePiece:'Marker / fjern', fReadHint:n=>`Les opp hint ${n}`,
+ fExportNote:'Øktnotatet inneholder svar og forklaringer du har skrevet. Det lastes ned til denne maskinen. Ikke skriv navn eller andre personopplysninger.',
+ fDraftNotice:'Teksten i feltet er ikke sendt. Hvis du går videre nå, blir den ikke med i øktnotatet.',
+ fReadLater:'Les opp oppfølgingsoppgaven', fReadSupport:'Opplesning valgt', fReadOtherLanguage:'Dette svaret er på et annet språk. Bytt språk for å lese det opp.',
  fSpeechFraction:(a,b)=>`${a} over ${b}`, fSpeechTask:(a,b,c,d)=>`Finn summen av ${a} over ${b} pluss ${c} over ${d}.`
 });
 Object.assign(STR.en, {
@@ -2029,8 +2042,8 @@ Object.assign(STR.en, {
  fDenValid:n=>`Each whole now has ${n} equal-sized pieces. The amounts have not changed.`,
  fChooseDen:'Choose a common denominator before entering the new numerators.', fUnresolved:'Ended without a resolved solution',
  fSkip:'Continue without a solution', fSkipExplanation:'Continue without an explanation',
- fSupported:'Correct sum after using support', fUnaided:'Correct sum without opening mathematical support',
- fDenUsed:'Common denominator chosen', fAttempt:n=>`Attempt ${n}`, fSupport:'Support used before the answer',
+ fSupported:'Correct sum after using support', fUnaided:'Correct sum without opening support in the lab',
+ fDenUsed:'Common denominator in the model', fAttempt:n=>`Attempt ${n}`, fSupport:'Support used before the answer',
  fReadTask:'Read the problem aloud', fReadInstruction:'Read the guidance aloud', fReadReply:'Read the follow-up aloud',
  fStop:'Stop reading', fStopped:'Reading stopped.',
  fInstruction:'Try for yourself first. You can open a model or hint whenever you want.',
@@ -2039,14 +2052,19 @@ Object.assign(STR.en, {
  fFollowupGuide:'Adult: Ask the learner to show why the amount stays the same. Note what happens before help, what help is given, and any practice since the session. Do not use names.',
  fFollowupBefore:'Before help: answer and explanation', fFollowupHelp:'Help and earlier practice',
  fFollowupAfter:'After help: answer and explanation', fPrintNote:'Complete this sheet by hand. It is not sent to the platform.',
- fReadSupport:'Read-aloud requested', fReadOtherLanguage:'This reply is in another language. Switch language to read it aloud.',
+ fDenPending:n=>`The model still shows ${n} parts per whole. Press “Try this partition” to apply your new choice.`,
+ fDenPendingOriginal:'The model shows the original parts. Press “Try this partition” to apply your choice.',
+ fPieceNumber:(i,n)=>`${i} of ${n}`, fPieceChoice:(a,b)=>`Choose a piece in ${a}/${b}`, fTogglePiece:'Mark / unmark', fReadHint:n=>`Read hint ${n} aloud`,
+ fExportNote:'The session note includes your written answers and explanations. It downloads to this device. Do not enter names or other personal information.',
+ fDraftNotice:'The text in the box has not been sent. If you continue now, it will not be included in the session note.',
+ fReadLater:'Read the follow-up task aloud', fReadSupport:'Read-aloud requested', fReadOtherLanguage:'This reply is in another language. Switch language to read it aloud.',
  fSpeechFraction:(a,b)=>`${a} over ${b}`, fSpeechTask:(a,b,c,d)=>`Find the sum of ${a} over ${b} plus ${c} over ${d}.`
 });
 const fractionTasks = [[2,3,1,4],[1,2,1,5]];
 const freshFraction = () => ({phase:0, active:0, started:false, rep:'strips', open:false,
  records:fractionTasks.map(()=>({answerDraft:'',attempts:[],hints:0,reps:[],equalized:false,marks:[],selectedRow:null,solved:false,
-  denominator:null,denominatorDraft:'',denominatorChoices:[],denFeedback:null,endedUnresolved:false,readAloud:[],parts:['',''],partsFeedback:null})),
- draft:'', explanations:[], conversation:[], busy:false, feedback:null, fallback:false, voiceNotice:null, chatTop:0, chatFollow:true});
+  pieceChoice:[1,1],denominator:null,denominatorDraft:'',denominatorChoices:[],denFeedback:null,endedUnresolved:false,readAloud:[],parts:['',''],partsFeedback:null})),
+ summaryReadAloud:[],draft:'', explanations:[], conversation:[], busy:false, feedback:null, fallback:false, voiceNotice:null, chatTop:0, chatFollow:true});
 let F = freshFraction();
 const escapeF = s => String(s).replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
 const ft = key => escapeF(tr(key));
@@ -2057,6 +2075,8 @@ const fExpression = index => { const [a,b,c,d]=fractionTasks[index];return [[a,b
 const fNames = () => ['strips','line','symbols'];
 function fTrackRep(){F.started=true;const r=fRec();if(!r.reps.includes(F.rep))r.reps.push(F.rep);}
 function fSupport(){const r=fRec();return {hints:r.hints,representations:[...r.reps],denominator:r.denominator,denominatorChoices:r.denominatorChoices.map(x=>({...x})),marks:[...r.marks],selectedRow:r.selectedRow,modelOpen:F.open,readAloud:[...r.readAloud]};}
+function fDenPending(r){return r.denominator!==null?(!/^\d+$/.test(r.denominatorDraft.trim())||Number(r.denominatorDraft)!==r.denominator):!!r.denominatorDraft.trim();}
+function fDenMessage(r){const [,b,,d]=fractionTasks[F.active];return r.denFeedback==='invalid'?tr('fDenInvalid',b,d):r.denFeedback==='range'?tr('fDenRange'):fDenPending(r)?(r.denominator?tr('fDenPending',r.denominator):tr('fDenPendingOriginal')):r.denominator?tr('fDenValid',r.denominator):'';}
 function fSteps(){return `<ol class="f-steps">${tr('fSteps').map((t,i)=>`<li ${F.phase===i?'aria-current="step"':''} class="${F.phase>i?'done':''}"><b>${i+1}</b><span>${escapeF(t)}</span></li>`).join('')}</ol>`;}
 function fSupportText(s){return `${tr('fHints')}: ${s.hints}; ${tr('fUsed')}: ${s.representations.length?s.representations.map(v=>tr('fReps')[fNames().indexOf(v)]).join(', '):tr('fNone')}; ${tr('fDenUsed')}: ${s.denominator??tr('fNone')}; ${tr('fReadSupport')}: ${s.readAloud.length}`;}
 function fSummaryRows(){return F.records.map((r,i)=>{
@@ -2074,24 +2094,24 @@ function fModel(){
  if(F.rep==='strips'){
   content=`<p class="rule">${ft('fSameWhole')} ${ft('fMark')}</p>`+nums.map(([n,den],row)=>{
    const cells=r.denominator??den,filled=n*cells/den;
-   return `<div class="f-strip-row"><span class="f-strip-label">${n}/${den}</span><div class="f-strip" style="--pieces:${cells}">${Array.from({length:cells},(_,i)=>{const k=row+':'+i;return `<button type="button" class="f-piece ${i<filled?'filled':''} ${row?'second':''}" data-piece="${k}" aria-pressed="${r.marks.includes(k)}" aria-label="${escapeF(tr('fPieceLabel',i+1,cells))} ${n}/${den}">${r.marks.includes(k)?'•':''}</button>`;}).join('')}</div><span class="f-whole">${ft('fOne')}</span></div>`;
+   return `<div class="f-strip-row"><span class="f-strip-label">${n}/${den}</span><div class="f-strip" style="--pieces:${cells}">${Array.from({length:cells},(_,i)=>{const k=row+':'+i;return `<button type="button" class="f-piece ${i<filled?'filled':''} ${row?'second':''}" data-piece="${k}" aria-pressed="${r.marks.includes(k)}" aria-label="${escapeF(tr('fPieceLabel',i+1,cells))} ${n}/${den}">${r.marks.includes(k)?'•':''}</button>`;}).join('')}</div><span class="f-whole">${ft('fOne')}</span><div class="f-piece-tools"><label for="f-piece-choice-${row}">${escapeF(tr('fPieceChoice',n,den))}</label><select id="f-piece-choice-${row}" data-piece-choice="${row}">${Array.from({length:cells},(_,i)=>`<option value="${i+1}" ${r.pieceChoice[row]===i+1?'selected':''}>${escapeF(tr('fPieceNumber',i+1,cells))}</option>`).join('')}</select><button type="button" data-toggle-piece="${row}" aria-label="${ft('fTogglePiece')} ${escapeF(tr('fSpeechFraction',n,den))}" class="btn ghost">${ft('fTogglePiece')}</button></div></div>`;
   }).join('')+`<p class="rule">${r.marks.length?escapeF(tr('fMarked',r.marks.length)):ft('fNoMarks')} <button type="button" class="f-text-button" id="f-clear">${ft('fClear')}</button></p>`;
  }else if(F.rep==='line'){
   content=`<p class="rule">${ft('fSameWhole')}</p>`+nums.map(([n,den],row)=>{const count=r.denominator??den,x=32+440*n/den;return `<button type="button" data-line-row="${row}" class="f-line-select f-linked ${fSelected(row)?'selected':''}" aria-pressed="${fSelected(row)}" aria-label="${escapeF(tr('fSelectFraction',n,den))}"><svg class="f-line" viewBox="0 0 504 110" role="img" aria-label="${escapeF(tr('fLineLabel',n,den))}"><line x1="32" y1="62" x2="472" y2="62" stroke="var(--line)" stroke-width="5"/><line x1="32" y1="62" x2="${x}" y2="62" stroke="var(--${row?'mint':'violet'})" stroke-width="7"/>${Array.from({length:count+1},(_,i)=>`<line x1="${32+440*i/count}" y1="52" x2="${32+440*i/count}" y2="73" stroke="var(--muted)" stroke-width="2"/>`).join('')}<circle cx="${x}" cy="62" r="8" fill="var(--${row?'mint':'violet'})"/><text x="${x}" y="29" text-anchor="middle" fill="var(--ink)" font-size="22">${n}/${den}</text><text x="32" y="101" text-anchor="middle" fill="var(--muted)" font-size="19">0</text><text x="472" y="101" text-anchor="middle" fill="var(--muted)" font-size="19">1</text></svg></button>`;}).join('');
  }
- const feedback=r.denFeedback==='invalid'?tr('fDenInvalid',b,d):r.denFeedback==='range'?tr('fDenRange'):r.denFeedback==='valid'?tr('fDenValid',r.denominator):'';
- const equivalents=r.denominator?`<p>${ft('fSymbolQuestion')}</p><form id="f-parts" class="f-symbols">${nums.map(([n,den],i)=>`<label class="f-equivalent f-linked ${fSelected(i)?'selected':''}">${frac(n,den)}<span>=</span><span class="f-frac"><input id="f-part-${i}" inputmode="numeric" maxlength="3" value="${escapeF(r.parts[i])}" aria-label="${ft('fNum')} ${n}/${den}"><span>${r.denominator}</span></span></label>`).join('')}<button class="btn ghost" type="submit">${ft('fCheckParts')}</button></form><p id="f-parts-feedback" class="feedback" aria-live="polite">${r.partsFeedback?ft(r.partsFeedback):''}</p>`:`<p>${ft('fChooseDen')}</p>`;
- return `<div class="f-model"><div class="f-rep-tabs" role="group" aria-label="${ft('fExplore')}">${fNames().map((v,i)=>`<button type="button" data-rep="${v}" aria-pressed="${F.rep===v}">${escapeF(tr('fReps')[i])}</button>`).join('')}</div><div class="f-expression">${fExpression(F.active)}</div>${content}<form id="f-denominator-form" class="f-denominator"><label for="f-denominator">${ft('fDenominator')}</label><input id="f-denominator" inputmode="numeric" maxlength="3" value="${escapeF(r.denominatorDraft)}" aria-describedby="f-den-feedback" aria-invalid="${r.denFeedback==='invalid'||r.denFeedback==='range'}"><button class="btn ghost" id="f-equalize" type="submit">${ft('fApplyDenominator')}</button></form><p id="f-den-feedback" class="feedback" aria-live="polite">${escapeF(feedback)}</p>${equivalents}<p class="f-question">${ft('fModelQuestion')}</p></div>`;
+ const feedback=fDenMessage(r),pending=fDenPending(r);
+ const equivalents=r.denominator?`<p>${escapeF(tr('fSymbolQuestion',r.denominator))}</p><form id="f-parts" class="f-symbols">${nums.map(([n,den],i)=>`<label class="f-equivalent f-linked ${fSelected(i)?'selected':''}">${frac(n,den)}<span>=</span><span class="f-frac"><input id="f-part-${i}" ${pending?'disabled':''} inputmode="numeric" maxlength="3" value="${escapeF(r.parts[i])}" aria-label="${ft('fNum')} ${n}/${den}"><span>${r.denominator}</span></span></label>`).join('')}<button id="f-check-parts" class="btn ghost" type="submit" ${pending?'disabled':''}>${ft('fCheckParts')}</button></form><p id="f-parts-feedback" class="feedback" aria-live="polite">${r.partsFeedback?ft(r.partsFeedback):''}</p>`:`<p>${ft('fChooseDen')}</p>`;
+ return `<div class="f-model"><div class="f-rep-tabs" role="group" aria-label="${ft('fExplore')}">${fNames().map((v,i)=>`<button type="button" data-rep="${v}" aria-pressed="${F.rep===v}">${escapeF(tr('fReps')[i])}</button>`).join('')}</div><div class="f-expression">${fExpression(F.active)}</div>${content}<form id="f-denominator-form" class="f-denominator"><label for="f-denominator">${ft('fDenominator')}</label><input id="f-denominator" inputmode="numeric" maxlength="3" value="${escapeF(r.denominatorDraft)}" aria-describedby="f-den-feedback" aria-invalid="${r.denFeedback==='invalid'||r.denFeedback==='range'}"><button class="btn ghost" id="f-equalize" type="submit">${ft('fApplyDenominator')}</button></form><p id="f-den-feedback" class="feedback" aria-live="polite">${escapeF(feedback)}</p>${r.denominator?`<button id="f-original" type="button" class="f-text-button">${ft('fOriginal')}</button>`:''}${equivalents}<p class="f-question">${ft('fModelQuestion')}</p></div>`;
 }
-function fAudio(){return `<div class="f-audio"><button type="button" id="f-read" class="f-text-button">${ft(F.phase===1?'fRead':F.phase===3?'fLater':'fReadTask')}</button><button type="button" id="f-read-instruction" class="f-text-button">${ft('fReadInstruction')}</button>${F.conversation.some(m=>m.who==='assistant')&&F.phase===1?`<button type="button" id="f-read-reply" class="f-text-button">${ft('fReadReply')}</button>`:''}<button type="button" id="f-stop" class="f-text-button">${ft('fStop')}</button><p class="rule" id="f-voice-note" role="status">${F.voiceNotice?ft(F.voiceNotice):''}</p></div>`;}
+function fAudio(){return `<div class="f-audio"><button type="button" id="f-read" class="f-text-button">${ft(F.phase===1?'fRead':F.phase===3?'fReadLater':'fReadTask')}</button><button type="button" id="f-read-instruction" class="f-text-button">${ft('fReadInstruction')}</button>${F.conversation.some(m=>m.who==='assistant')&&F.phase===1?`<button type="button" id="f-read-reply" class="f-text-button">${ft('fReadReply')}</button>`:''}<button type="button" id="f-stop" class="f-text-button">${ft('fStop')}</button><p class="rule" id="f-voice-note" role="status">${F.voiceNotice?ft(F.voiceNotice):''}</p></div>`;}
 function fSpeak(text,kind){
- F.voiceNotice=null;const r=fRec();if(!r.readAloud.includes(kind))r.readAloud.push(kind);F.started=true;
+ F.voiceNotice=null;const reads=F.phase===3?F.summaryReadAloud:fRec().readAloud;if(!reads.includes(kind))reads.push(kind);F.started=true;
  $('f-voice-note').textContent='';
  say(text,{explicit:true,speaker:document.querySelector('.f-buddy'),notify:key=>{F.voiceNotice=key;const note=$('f-voice-note');if(note)note.textContent=tr(key);}});
 }
 function fSpeech(text){return text.replace(/(\d+)\s*\/\s*(\d+)/g,(_,a,b)=>tr('fSpeechFraction',a,b)).replace(/\s*\+\s*/g,LANG==='en'?' plus ':' pluss ').replace(/\s*=\s*/g,LANG==='en'?' equals ':' er lik ');}
 function fFollowup(){return `<section id="f-followup" class="f-print-sheet"><h3>${ft('fLater')}</h3><p>${ft('fLaterText')}</p><p>${ft('fFollowupGuide')}</p>${['fFollowupBefore','fFollowupHelp','fFollowupAfter'].map(k=>`<p><strong>${ft(k)}</strong></p><div class="f-print-space"></div>`).join('')}<p>${ft('fPrintNote')}</p><p>${ft('fNotTested')}</p><button id="f-print" class="btn ghost">${ft('fPrint')}</button></section>`;}
-function fExplore(){return `<details id="f-explore" class="f-explore" ${F.open?'open':''}><summary>${ft('fExplore')}</summary><p class="rule">${ft('fExploreNote')}</p>${F.open?fModel():''}</details>`;}
+function fExplore(){return `<details id="f-explore" class="f-explore" ${F.open?'open':''}><summary id="f-explore-toggle">${ft('fExplore')}</summary><p class="rule">${ft('fExploreNote')}</p>${F.open?fModel():''}</details>`;}
 function fBuddy(){return `<div class="makker f-buddy" aria-hidden="true"><div class="ant"></div><div class="body"></div><div class="eye l"></div><div class="eye r"></div><div class="mouth"></div></div>`;}
 function fractionAIAvailable(){ return !!(sampleFn || fractionBackend); }
 function fractionModeKey(){
@@ -2111,11 +2131,11 @@ function renderFraction({followLatest=false}={}){
  if(followLatest)F.chatFollow=true;
  root.innerHTML=`<div class="f-intro"><div><p class="f-prototype">${ft('fPrototype')}</p><h2>${ft('fTitle')}</h2><p>${ft('fIntro')}</p></div>${fBuddy()}</div>${fSteps()}${fAudio()}`;
  if(F.phase===3){
-  root.innerHTML+=`<section class="panel f-summary"><h2 class="sec" tabindex="-1" id="f-heading">${ft('fSummary')}</h2><p>${ft('fSummaryNote')}</p><div class="f-results">${fSummaryRows()}</div><p><strong>${ft(F.explanations.length?'fExplanationSaved':'fExplanationNone')}</strong>. ${ft('fObserved')}</p><div class="f-dinner"><h3>${ft('fDinner')}</h3><p>${ft('fDinnerText')}</p></div>${fFollowup()}<div class="f-actions"><button class="btn" id="f-download">${ft('fDownload')}</button><button class="btn ghost" id="f-restart">${ft('fRestart')}</button></div></section>`;
+  root.innerHTML+=`<section class="panel f-summary"><h2 class="sec" tabindex="-1" id="f-heading">${ft('fSummary')}</h2><p>${ft('fSummaryNote')}</p><div class="f-results">${fSummaryRows()}</div><p><strong>${ft(F.explanations.length?'fExplanationSaved':'fExplanationNone')}</strong>. ${ft('fObserved')}</p><div class="f-dinner"><h3>${ft('fDinner')}</h3><p>${ft('fDinnerText')}</p></div>${fFollowup()}<p class="rule">${ft('fExportNote')}</p><div class="f-actions"><button class="btn" id="f-download">${ft('fDownload')}</button><button class="btn ghost" id="f-restart">${ft('fRestart')}</button></div></section>`;
  }else if(F.phase===1){
-  root.innerHTML+=`<div class="f-layout"><section class="panel"><h2 class="sec" tabindex="-1" id="f-heading">${ft('fTeachTitle')}</h2><div class="f-expression">${fExpression(0)}</div><div class="f-bubble">${ft('fMisconception')}</div><p>${ft('fTeachPrompt')}</p>${fExplore()}</section><section class="panel f-dialog"><div class="f-chat" role="log" aria-live="polite" tabindex="0" aria-label="${ft('fTeachTitle')}">${F.conversation.map(m=>`<div class="msg ${m.who==='user'?'e':'m'}">${escapeF(m.key?tr(m.key):m.text)}</div>`).join('')}</div><form id="f-explanation-form"><label for="f-explanation">${ft('fExplain')}</label><textarea id="f-explanation" rows="4" maxlength="1500" ${F.busy?'disabled':''}>${escapeF(F.draft)}</textarea><div class="f-actions"><button type="submit" class="btn mintb" ${F.busy?'disabled':''}>${ft(F.busy?'fBusy':'fSend')}</button></div></form><p class="rule" id="f-assessment">${ft(fractionModeKey())}</p><p class="feedback" id="f-notice" aria-live="polite">${F.feedback?ft(F.feedback):''}</p><button type="button" id="f-transfer" class="btn sunb" ${F.busy?'disabled':''}>${ft(F.explanations.length?'fToTransfer':'fSkipExplanation')}</button></section></div>`;
+  root.innerHTML+=`<div class="f-layout"><section class="panel"><h2 class="sec" tabindex="-1" id="f-heading">${ft('fTeachTitle')}</h2><div class="f-expression">${fExpression(0)}</div><div class="f-bubble">${ft('fMisconception')}</div><p>${ft('fTeachPrompt')}</p>${fExplore()}</section><section class="panel f-dialog"><div class="f-chat" role="log" aria-live="polite" tabindex="0" aria-label="${ft('fTeachTitle')}">${F.conversation.map(m=>`<div class="msg ${m.who==='user'?'e':'m'}">${escapeF(m.key?tr(m.key):m.text)}</div>`).join('')}</div><form id="f-explanation-form"><label for="f-explanation">${ft('fExplain')}</label><textarea id="f-explanation" rows="4" maxlength="1500" ${F.busy?'disabled':''}>${escapeF(F.draft)}</textarea><div class="f-actions"><button type="submit" class="btn mintb" ${F.busy?'disabled':''}>${ft(F.busy?'fBusy':'fSend')}</button></div></form><p id="f-draft-notice" class="rule" ${F.draft.trim()?'':'hidden'}>${ft('fDraftNotice')}</p><p class="rule" id="f-assessment">${ft(fractionModeKey())}</p><p class="feedback" id="f-notice" aria-live="polite">${F.feedback?ft(F.feedback):''}</p><button type="button" id="f-transfer" class="btn sunb" ${F.busy?'disabled':''}>${ft(F.explanations.length?'fToTransfer':'fSkipExplanation')}</button></section></div>`;
  }else{
-  root.innerHTML+=`<div class="f-layout"><section class="panel f-problem"><h2 class="sec" tabindex="-1" id="f-heading">${ft(F.active?'fTransfer':'fTask')}</h2><p>${ft(F.active?'fTransferIntro':'fInstruction')}</p><div class="f-expression">${fExpression(F.active)}<span class="f-equals">= ?</span></div><form id="f-answer-form" class="answer"><label class="f-answer-label" for="f-answer">${ft('fAnswer')}</label><input id="f-answer" autocomplete="off" value="${escapeF(r.answerDraft)}" placeholder="… / …" aria-describedby="f-answer-feedback" ${r.solved?'disabled':''}><button class="btn" type="submit" ${r.solved?'disabled':''}>${ft('check')}</button></form><p class="feedback ${F.feedback==='fRight'?'good':''}" id="f-answer-feedback" aria-live="polite">${F.feedback?ft(F.feedback):''}</p>${r.solved?`<button id="f-advance" class="btn sunb">${ft(F.active?'fFinish':'fToTeach')}</button>`:`<button id="f-skip" class="f-text-button">${ft('fSkip')}</button>`}<div class="f-hints"><button class="btn ghost" id="f-hint" ${r.hints===3||r.solved?'disabled':''}>${ft(r.hints===3?'fNoHints':'fHint')}</button>${Array.from({length:r.hints},(_,i)=>`<p><strong>${escapeF(tr('fHintCount',i+1))}</strong><br>${ft('fHint'+i)}</p>`).join('')}</div></section><section class="panel f-workspace">${fExplore()}</section></div>`;
+  root.innerHTML+=`<div class="f-layout"><section class="panel f-problem"><h2 class="sec" tabindex="-1" id="f-heading">${ft(F.active?'fTransfer':'fTask')}</h2><p>${ft(F.active?'fTransferIntro':'fInstruction')}</p><div class="f-expression">${fExpression(F.active)}<span class="f-equals">= ?</span></div><form id="f-answer-form" class="answer"><label class="f-answer-label" for="f-answer">${ft('fAnswer')}</label><input id="f-answer" autocomplete="off" value="${escapeF(r.answerDraft)}" placeholder="… / …" aria-describedby="f-answer-feedback" ${r.solved?'disabled':''}><button class="btn" type="submit" ${r.solved?'disabled':''}>${ft('check')}</button></form><p class="feedback ${F.feedback==='fRight'?'good':''}" id="f-answer-feedback" aria-live="polite">${F.feedback?ft(F.feedback):''}</p>${r.solved?`<button id="f-advance" class="btn sunb">${ft(F.active?'fFinish':'fToTeach')}</button>`:`<button id="f-skip" class="f-text-button">${ft('fSkip')}</button>`}<div class="f-hints"><button class="btn ghost" id="f-hint" ${r.hints===3||r.solved?'disabled':''}>${ft(r.hints===3?'fNoHints':'fHint')}</button>${Array.from({length:r.hints},(_,i)=>`<p id="f-hint-text-${i}" tabindex="-1"><strong>${escapeF(tr('fHintCount',i+1))}</strong><br>${ft('fHint'+i)}<br><button type="button" class="f-text-button" data-read-hint="${i}">${escapeF(tr('fReadHint',i+1))}</button></p>`).join('')}</div></section><section class="panel f-workspace">${fExplore()}</section></div>`;
  }
  root.innerHTML+=`<p class="f-scope">${ft('fScope')}</p>`;
  bindFraction();renderFractionParent();restoreFractionChat();
@@ -2134,7 +2154,7 @@ function bindFraction(){
   const correct=answersEqual(value,`${a*d+c*b}/${b*d}`);r.attempts.push({answer:value,correct,at:new Date().toISOString(),support:fSupport()});r.solved=correct;
   F.feedback=correct?'fRight':'fWrong';renderFraction();if(correct){$('f-advance').focus();}else{$('f-answer').focus();}
  };
- if($('f-hint'))$('f-hint').onclick=()=>{if(r.hints>=3||r.solved)return;r.hints++;F.started=true;renderFraction();$('f-hint').focus({preventScroll:true});};
+ if($('f-hint'))$('f-hint').onclick=()=>{if(r.hints>=3||r.solved)return;r.hints++;F.started=true;renderFraction();$(r.hints===3?'f-hint-text-2':'f-hint').focus({preventScroll:true});};
  const advance=()=>{F.started=true;r.endedUnresolved=!r.solved;F.phase=F.active?3:1;F.feedback=null;F.open=false;try{speechSynthesis.cancel();}catch(e){}renderFraction();fFocus();};
  if($('f-advance'))$('f-advance').onclick=advance;
  if($('f-skip'))$('f-skip').onclick=advance;
@@ -2147,26 +2167,31 @@ function bindFraction(){
  }
  document.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>{F.rep=b.dataset.rep;fTrackRep();renderFraction();document.querySelector(`[data-rep="${F.rep}"]`).focus({preventScroll:true});});
  if($('f-denominator-form')){
-  $('f-denominator').oninput=e=>{r.denominatorDraft=e.target.value;r.denFeedback=null;e.target.setAttribute('aria-invalid','false');$('f-den-feedback').textContent='';};
+  $('f-denominator').oninput=e=>{r.denominatorDraft=e.target.value;r.denFeedback=null;r.partsFeedback=null;e.target.setAttribute('aria-invalid','false');$('f-den-feedback').textContent=fDenMessage(r);const pending=fDenPending(r);document.querySelectorAll('#f-parts input,#f-parts button').forEach(el=>el.disabled=pending);if($('f-parts-feedback'))$('f-parts-feedback').textContent='';};
   $('f-denominator-form').onsubmit=e=>{
    e.preventDefault();const value=r.denominatorDraft.trim(),n=Number(value),[,b,,d]=fractionTasks[F.active];
    const range=/^\d+$/.test(value)&&Number.isInteger(n)&&n>=2&&n<=24,valid=range&&n%b===0&&n%d===0;
-   r.denFeedback=!range?'range':valid?'valid':'invalid';r.denominator=valid?n:null;
+   const changed=r.denominator!==(valid?n:null);r.denFeedback=!range?'range':valid?'valid':'invalid';r.denominator=valid?n:null;
    r.denominatorChoices.push({value,valid,at:new Date().toISOString()});r.equalized=r.equalized||valid;
-   r.parts=['',''];r.partsFeedback=null;r.marks=[];r.selectedRow=null;F.started=true;renderFraction();$('f-denominator').focus({preventScroll:true});
+   if(changed){r.parts=['',''];r.partsFeedback=null;r.marks=[];r.selectedRow=null;r.pieceChoice=[1,1];}F.started=true;renderFraction();$('f-denominator').focus({preventScroll:true});
   };
  }
+ if($('f-original'))$('f-original').onclick=()=>{r.denominator=null;r.denominatorDraft='';r.denFeedback=null;r.parts=['',''];r.partsFeedback=null;r.marks=[];r.selectedRow=null;r.pieceChoice=[1,1];renderFraction();$('f-denominator').focus({preventScroll:true});};
+ document.querySelectorAll('[data-piece-choice]').forEach(el=>el.onchange=()=>{r.pieceChoice[Number(el.dataset.pieceChoice)]=Number(el.value);});
+ const togglePiece=key=>{r.selectedRow=null;r.marks=r.marks.includes(key)?r.marks.filter(x=>x!==key):r.marks.concat(key);renderFraction();};
+ document.querySelectorAll('[data-toggle-piece]').forEach(el=>el.onclick=()=>{const row=Number(el.dataset.togglePiece);togglePiece(row+':'+(r.pieceChoice[row]-1));document.querySelector(`[data-toggle-piece="${row}"]`).focus({preventScroll:true});});
  document.querySelectorAll('[data-line-row]').forEach(b=>b.onclick=()=>{const row=Number(b.dataset.lineRow);r.marks=[];r.selectedRow=r.selectedRow===row?null:row;renderFraction();document.querySelector(`[data-line-row="${row}"]`).focus({preventScroll:true});});
- document.querySelectorAll('[data-piece]').forEach(b=>b.onclick=()=>{const key=b.dataset.piece;r.marks=r.marks.includes(key)?r.marks.filter(x=>x!==key):r.marks.concat(key);renderFraction();document.querySelector(`[data-piece="${key}"]`).focus({preventScroll:true});});
+ document.querySelectorAll('[data-piece]').forEach(b=>b.onclick=()=>{const key=b.dataset.piece;togglePiece(key);document.querySelector(`[data-piece="${key}"]`).focus({preventScroll:true});});
  if($('f-clear'))$('f-clear').onclick=()=>{r.marks=[];r.selectedRow=null;renderFraction();$('f-clear').focus({preventScroll:true});};
  if($('f-parts')){
   [0,1].forEach(i=>$('f-part-'+i).oninput=e=>{r.parts[i]=e.target.value;r.partsFeedback=null;$('f-parts-feedback').textContent='';});
-  $('f-parts').onsubmit=e=>{e.preventDefault();const [a,b,c,d]=fractionTasks[F.active];r.partsFeedback=r.parts.every(x=>/^\d+$/.test(x.trim()))&&Number(r.parts[0])*b===a*r.denominator&&Number(r.parts[1])*d===c*r.denominator?'fPartsRight':'fPartsWrong';renderFraction();$('f-part-0').focus({preventScroll:true});};
+  $('f-parts').onsubmit=e=>{e.preventDefault();if(fDenPending(r))return;const [a,b,c,d]=fractionTasks[F.active];r.partsFeedback=r.parts.every(x=>/^\d+$/.test(x.trim()))&&Number(r.parts[0])*b===a*r.denominator&&Number(r.parts[1])*d===c*r.denominator?'fPartsRight':'fPartsWrong';renderFraction();$('f-part-0').focus({preventScroll:true});};
  }
  if($('f-explanation-form')){
-  $('f-explanation').oninput=e=>F.draft=e.target.value;
+  $('f-explanation').oninput=e=>{F.draft=e.target.value;$('f-draft-notice').hidden=!F.draft.trim();};
   $('f-explanation-form').onsubmit=e=>{e.preventDefault();sendFractionExplanation();};
  }
+ document.querySelectorAll('[data-read-hint]').forEach(el=>el.onclick=()=>fSpeak(fSpeech(tr('fHint'+el.dataset.readHint)),'hint-'+el.dataset.readHint));
  if($('f-read'))$('f-read').onclick=()=>fSpeak(F.phase===1?fSpeech(tr('fMisconception')):F.phase===3?fSpeech(tr('fLaterText')):tr('fSpeechTask',...fractionTasks[F.active]),'question');
  if($('f-read-instruction'))$('f-read-instruction').onclick=()=>fSpeak(fSpeech(F.phase===1?tr('fTeachPrompt'):F.phase===3?tr('fFollowupGuide'):F.open?tr('fExploreNote')+' '+tr('fDenominator')+' '+tr('fModelQuestion'):tr(F.active?'fTransferIntro':'fInstruction')),'instruction');
  if($('f-read-reply'))$('f-read-reply').onclick=()=>{const m=F.conversation.filter(m=>m.who==='assistant').at(-1);if(m.lang&&m.lang!==LANG){F.voiceNotice='fReadOtherLanguage';$('f-voice-note').textContent=tr(F.voiceNotice);return;}fSpeak(fSpeech(m.key?tr(m.key):m.text),'followup');};
@@ -2176,7 +2201,7 @@ function bindFraction(){
  if($('f-restart'))$('f-restart').onclick=()=>{try{speechSynthesis.cancel();}catch(e){}F=freshFraction();renderFraction();fFocus();};
  if($('f-download'))$('f-download').onclick=()=>{
   const report={prototype:'Tenkemakker fraction sequence',version:2,exportedAt:new Date().toISOString(),language:LANG,
-   tasks:F.records.map((record,i)=>({task:fractionTasks[i],...record})),explanations:F.explanations,
+   tasks:F.records.map((record,i)=>({task:fractionTasks[i],...record})),explanations:F.explanations,summaryReadAloud:[...F.summaryReadAloud],
    assessment:'Activity and support only. No verified learning assessment. Later use not tested.'};
   const url=URL.createObjectURL(new Blob([JSON.stringify(report,null,2)],{type:'application/json'}));const a=document.createElement('a');a.href=url;a.download='tenkemakker-brok-v2.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
  };
@@ -2195,16 +2220,29 @@ async function sendFractionExplanation(){
   }
  }catch(e){reply=null;}
  if(F!==session)return;
+ reply=typeof reply==='string'?reply.trim():null;if(reply&&reply.length>1200)reply=null;
  if(reply){F.conversation.push({who:'assistant',text:reply,lang});F.fallback=false;}
  else{
   F.fallback=fractionAIAvailable();if(F.fallback)F.conversation.push({who:'assistant',key:'fFallback'});
   const low=text.toLowerCase();const key=/like store|samme størrelse|fellesnevner|equal.?sized|same size|common denominator/.test(low)?'fFollowEqual':/gange|multipl|teller.*nevner|numerator.*denominator/.test(low)?'fFollowScale':'fFollow';
   F.conversation.push({who:'assistant',key});
  }
- F.busy=false;F.feedback='fSaved';renderFraction({followLatest:true});
- if(document.body.dataset.view==='brok'){
-  $('f-explanation')?.focus({preventScroll:true});
-  document.querySelector('.f-chat')?.lastElementChild?.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});
+ // Preserve the learner's current control and reading position when a reply arrives.
+ const active=document.activeElement, inLab=document.body.dataset.view==='brok';
+ const keepFocus=inLab&&active!==document.body&&active!==document.documentElement;
+ const focusedId=keepFocus?active.id:null, selection=keepFocus&&typeof active.selectionStart==='number'?[active.selectionStart,active.selectionEnd]:null;
+ const modelSelector=keepFocus&&!focusedId?['rep','piece','lineRow','togglePiece'].find(k=>active.dataset[k]!==undefined):null;
+ const focusedValue=modelSelector?active.dataset[modelSelector]:null;
+ const y=window.scrollY;
+ F.busy=false;F.feedback='fSaved';renderFraction({followLatest:!keepFocus&&F.chatFollow});
+ if(inLab){
+  if(keepFocus){
+   const target=focusedId?$(focusedId):modelSelector?Array.from(document.querySelectorAll('.f-explore button')).find(el=>el.dataset[modelSelector]===focusedValue):active?.classList.contains('f-chat')?document.querySelector('.f-chat'):active?.isConnected?active:null;
+   target?.focus({preventScroll:true});if(selection)target?.setSelectionRange?.(...selection);window.scrollTo(0,y);
+  }else{
+   $('f-explanation')?.focus({preventScroll:true});
+   document.querySelector('.f-chat')?.lastElementChild?.scrollIntoView({block:'nearest',behavior:reduce?'auto':'smooth'});
+  }
  }
 }
 

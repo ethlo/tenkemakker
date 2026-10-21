@@ -241,3 +241,15 @@ this review delivery; the agreed sequence requires a preview and facilitated pil
   validated teaching intervention. No participant recruitment or learning-effect
   claim is made by this implementation. See PILOT.md for the facilitated protocol.
 
+
+### Critical pre-pilot corrections
+
+Pending denominator drafts are explicitly separate from the applied partition;
+equivalence checking waits for application. Reapplying the same partition preserves
+work, and learners can return to original parts. Native piece selectors offer a
+larger equivalent target for narrow strip cells, without recoloring quantities.
+Delayed replies preserve focus, caret and reading position; empty or overlong
+replies use the local fallback. Hints have read-aloud controls and stable final-hint
+focus, and leaving the lab stops speech. Post-session read-aloud is exported as
+`summaryReadAloud`, not appended to completed task support. Unsent-draft and export
+text disclosures are visible. See PILOT_REVIEW.md for checks and remaining limits.

@@ -34,3 +34,11 @@ Commands use NODE_PATH for the bundled runtime and CHROMIUM_CHANNEL=chrome.
   were tested and no learning effects are claimed.
 - Live Claude response quality, publication, Worker rollout and authenticated
   production checks. There was no push to main and no change to access settings.
+
+## Critical pre-pilot review
+
+The user requested a fresh critical walkthrough after implementation.
+See PILOT_REVIEW.md for the findings, fixes, step-by-step status and evidence limits.
+The three browser suites now total 833 passing checks (178 + 561 + 94); Worker
+contract checks also pass. No learning effect, live AI quality or production release
+is implied. The changes are for the same draft PR, with no main-branch publication.
