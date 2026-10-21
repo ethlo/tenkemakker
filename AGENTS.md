@@ -65,6 +65,6 @@ Check: full flow for all 3 tasks, parent tab, dark mode, 390px width, `scrollWid
 1. Publish the page to the Tenkemakker artifact (keeps the same link; declares `sample`).
 2. Copy the file to the team laptop: `~/Downloads/tenkemakker.html` (overwrite).
 3. Copy to `index.html`, commit, push to `github.com/ethlo/tenkemakker` (`main`).
-4. If `worker/worker.js` changed: deploy it to the Cloudflare Worker `tenkemakker` (keep bindings: `ACCESS_AUD`, `ACCESS_TEAM`, `MODEL`, secret `ANTHROPIC_API_KEY`). The deployed Worker must always match `worker/worker.js` on `main`.
+4. If `worker/worker.js` changed: deploy it to the Cloudflare Worker `tenkemakker` (keep bindings: `ACCESS_AUD`, `ACCESS_TEAM`, `MODEL`, optional `PUBLIC_UNTIL`, secret `ANTHROPIC_API_KEY`). The deployed Worker must always match `worker/worker.js` on `main`.
 
 Push every change as you go: GitHub `main` is what tenkemakker.ethlo.com serves (the Worker fetches `index.html` and `vision.html` from it), so GitHub and the live site must never drift apart.

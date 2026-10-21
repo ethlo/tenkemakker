@@ -9,6 +9,7 @@
 //   ACCESS_AUD         plain text, the Access application's AUD tag
 //   ACCESS_TEAM        plain text, e.g. https://ethlo.cloudflareaccess.com
 //   MODEL              plain text, optional (default claude-haiku-5-5)
+//   PUBLIC_UNTIL       plain text, optional: ms timestamp; before it, no login is required
 
 const RAW = "https://raw.githubusercontent.com/ethlo/tenkemakker/main/";
 
@@ -38,7 +39,10 @@ const TASKS = [
 export default {
   async fetch(req, env, ctx) {
     const url = new URL(req.url);
-    const user = await verifyAccess(req, env);
+    // Time-boxed public access: until PUBLIC_UNTIL (ms since epoch) no login is needed.
+    // After that the Access login check is back automatically, even if nobody remembers to close it.
+    const openUntil = Number(env.PUBLIC_UNTIL || 0);
+    const user = Date.now() < openUntil ? "public" : await verifyAccess(req, env);
     if (!user) return new Response("Logg inn via Cloudflare Access.", { status: 401 });
 
     if (url.pathname === "/api/health") {

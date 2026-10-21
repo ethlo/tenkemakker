@@ -174,3 +174,4 @@ available under **Dagens tre / Today’s three**. All app code remains in index.
 - **v2.13** (13:45): long generated tasks no longer break the layout (wrapping highlight, smaller text for long tasks, shortened topic chip).
 - **v2.14** (13:48): 90-second pitch: `demo/SCRIPT.md` (8 timed beats, nb + en) and `demo/pitch.py`, which plays the beats with lower-third overlays, progress bar and timer and records an exactly 90-second video.
 - **v2.15** (14:20): `demo/voiceover.py` adds an ElevenLabs voice-over (one line per beat, on the beat) and instrumental music (ducked under the voice) to the pitch video. Runs on the presenter's machine with their own key.
+- **v2.16** (14:40): time-boxed public access: the Worker skips the login check until `PUBLIC_UNTIL` (ms timestamp binding). Opened 14:40–15:40 for the audience; Access policy set to bypass for that hour, then back to email login.
