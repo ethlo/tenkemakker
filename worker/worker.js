@@ -10,6 +10,7 @@
 //   ACCESS_TEAM        plain text, e.g. https://ethlo.cloudflareaccess.com
 //   MODEL              plain text, optional (default claude-haiku-5-5)
 
+const FRACTION_SEQUENCE_VERSION = 1;
 const RAW = "https://raw.githubusercontent.com/ethlo/tenkemakker/main/";
 
 // Prompts are built here from the task id. The browser only sends the task id,
@@ -42,7 +43,7 @@ export default {
     if (!user) return new Response("Logg inn via Cloudflare Access.", { status: 401 });
 
     if (url.pathname === "/api/health") {
-      return json({ ok: true, ai: !!env.ANTHROPIC_API_KEY });
+      return json({ ok: true, ai: !!env.ANTHROPIC_API_KEY, capabilities: { fractionSequence: FRACTION_SEQUENCE_VERSION } });
     }
     if (url.pathname === "/api/makker" && req.method === "POST") {
       return makker(req, env);
@@ -150,7 +151,8 @@ Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
   let out = null;
   try { out = m ? JSON.parse(m[0]) : null; } catch { out = null; }
   if (!out || typeof out.reply !== "string") out = { reply: text.trim().slice(0, 400), understood: false, summary: "" };
-  return json({ reply: out.reply, understood: !!out.understood, summary: String(out.summary || "") });
+  return json({ reply: out.reply, understood: !!out.understood, summary: String(out.summary || ""),
+    ...(body.sequence === true ? { sequenceVersion: FRACTION_SEQUENCE_VERSION } : {}) });
 }
 
 // ---- New task from a topic Ida chooses ----
