@@ -134,22 +134,9 @@ Regler:
 - summary: én nøytral linje til forelderen om HVA Ida forklarte (ikke sitat, ikke vurdering av henne), skrevet på ${L}. Tom streng hvis understood=false.
 Svar KUN med JSON: {"reply":"...","understood":true|false,"summary":"..."}`;
 
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "x-api-key": env.ANTHROPIC_API_KEY,
-      "anthropic-version": "2023-06-01",
-      "content-type": "application/json"
-    },
-    body: JSON.stringify({
-      model: env.MODEL || "claude-haiku-5-5",
-      max_tokens: 1500,
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
-  if (!r.ok) return json({ error: "upstream", status: r.status }, 502);
-  const data = await r.json();
-  const text = (data.content || []).filter(c => c.type === "text").map(c => c.text).join("");
+  const res = await askClaude(env, prompt, 1500, "makker-" + mode);
+  if (res.error) return json(res, 502);
+  const { text, data } = res;
   const m = text.match(/\{[\s\S]*\}/);
   let out = null;
   try { out = m ? JSON.parse(m[0]) : null; } catch { out = null; }
@@ -172,17 +159,55 @@ Skriv alt på ${L}. Oppgaven skal ha ett entydig, kort svar (et tall, en brøk e
 Svar KUN med JSON i dette formatet:
 {"topic":"kort emnenavn (1-3 ord)","plain":"oppgaveteksten","math":"den delen av oppgaveteksten som skal utheves (kopier ordrett fra plain)","answers":["riktig svar","tillatte varianter"],"hints":["et spørsmål som får Ida til å tenke, uten å avsløre noe","et tips som peker mot metoden","et gjennomregnet eksempel på en LIGNENDE oppgave med andre tall, aldri denne"],"wrong":"en typisk misforståelse sagt av Makker i første person, som ender i et galt svar","keys":["6-10 korte nøkkelord for kjerneideen"],"follow":"et oppfølgingsspørsmål fra Makker","aha":"Makkers aha-replikk med riktig utregning","sum":"én nøytral linje til forelderen om hva Ida forklarte","starter":"et konkret spørsmål foreldrene kan stille ved middagen"}
 Ingen hint får inneholde svaret på denne oppgaven.`;
-  const r = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
-    body: JSON.stringify({ model: env.MODEL || "claude-haiku-5-5", max_tokens: 2000, messages: [{ role: "user", content: prompt }] })
-  });
-  if (!r.ok) { let d = ""; try { d = (await r.text()).slice(0, 200); } catch {} return json({ error: "upstream", status: r.status, detail: d }, 502); }
-  const data = await r.json();
-  const text = (data.content || []).filter(c => c.type === "text").map(c => c.text).join("");
+  const res = await askClaude(env, prompt, 2000, "task");
+  if (res.error) return json(res, 502);
+  const { text, data } = res;
   const m = text.match(/\{[\s\S]*\}/);
   try { return json(JSON.parse(m[0])); } catch { return json({ error: "bad_output", stop: data.stop_reason || "", status: 0 }, 502); }
 }
+
+// ---- Call Claude with retries ----
+// Retries temporary failures (rate limit, overload, 5xx, network, empty reply) up to 2 times.
+// Logs only status/reason codes, never what pupils wrote.
+const RETRY = new Set([408, 409, 425, 429, 500, 502, 503, 504, 529]);
+async function askClaude(env, prompt, maxTokens, what) {
+  let last = { error: "upstream", status: 0, detail: "" };
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    let r;
+    try {
+      r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: { "x-api-key": env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01", "content-type": "application/json" },
+        body: JSON.stringify({ model: env.MODEL || "claude-haiku-5-5", max_tokens: maxTokens, messages: [{ role: "user", content: prompt }] })
+      });
+    } catch (e) {
+      last = { error: "network", status: 0, detail: String(e).slice(0, 120) };
+      console.error(`[${what}] attempt ${attempt}: network error`, last.detail);
+      await sleep(400 * attempt); continue;
+    }
+    if (r.ok) {
+      const data = await r.json();
+      const text = (data.content || []).filter(c => c.type === "text").map(c => c.text).join("");
+      if (text.trim()) {
+        if (attempt > 1) console.log(`[${what}] ok after ${attempt} attempts`);
+        return { text, data };
+      }
+      last = { error: "empty", status: 200, detail: "stop_reason=" + (data.stop_reason || "") };
+      console.error(`[${what}] attempt ${attempt}: empty reply, ${last.detail}`);
+    } else {
+      let d = ""; try { d = (await r.text()).slice(0, 200); } catch {}
+      last = { error: "upstream", status: r.status, detail: d };
+      console.error(`[${what}] attempt ${attempt}: HTTP ${r.status}`, d);
+      if (!RETRY.has(r.status)) break;
+      const ra = Number(r.headers.get("retry-after"));
+      await sleep(Math.min(2500, ra > 0 ? ra * 1000 : 500 * attempt));
+      continue;
+    }
+    await sleep(300 * attempt);
+  }
+  return last;
+}
+const sleep = ms => new Promise(res => setTimeout(res, ms));
 
 // ---- Cloudflare Access JWT verification ----
 let certCache = null;
